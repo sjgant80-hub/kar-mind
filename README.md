@@ -1,5 +1,7 @@
 # kar-mind
 
+**▶ Live:** https://sjgant80-hub.github.io/kar-mind/
+
 **A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system — and structurally cannot publish or spend.**
 
 `kar-mind` wires a set of small, independently-gated memory organs into one mind: it perceives a fact,
