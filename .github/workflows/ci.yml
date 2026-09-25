@@ -1,0 +1,54 @@
+name: gates
+
+# Proof-of-play: clone the three public sibling organs and run the gates on a clean machine. The
+# wire-*.mjs import the organs by relative path (../fall-remember, ../the-dreamer, ../fallforgecell),
+# so they are checked out as siblings of this repo.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  gates:
+    name: gate suite (node --test)
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out kar-mind
+        uses: actions/checkout@v4
+        with:
+          path: kar-mind
+      - name: clone the three public sibling organs
+        run: |
+          git clone --depth 1 https://github.com/sjgant80-hub/fall-remember.git fall-remember
+          git clone --depth 1 https://github.com/sjgant80-hub/the-dreamer.git the-dreamer
+          git clone --depth 1 https://github.com/sjgant80-hub/fallforgecell.git fallforgecell
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: run the whole gate suite (unit + wired edge-gates + persistence + autonomy + restart)
+        working-directory: kar-mind
+        run: node --test
+
+  witness:
+    name: mutation gate (witness)
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out kar-mind
+        uses: actions/checkout@v4
+        with:
+          path: kar-mind
+      - name: clone the three public sibling organs + the witness gate
+        run: |
+          git clone --depth 1 https://github.com/sjgant80-hub/fall-remember.git fall-remember
+          git clone --depth 1 https://github.com/sjgant80-hub/the-dreamer.git the-dreamer
+          git clone --depth 1 https://github.com/sjgant80-hub/fallforgecell.git fallforgecell
+          git clone --depth 1 https://github.com/sjgant80-hub/witness.git witness
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: witness the composition kernels (every mutant must be caught)
+        working-directory: kar-mind
+        run: |
+          node ../witness/witness.mjs mutate mind.mjs     --timeout 60000 --test node --test mind.test.mjs
+          node ../witness/witness.mjs mutate persist.mjs  --timeout 60000 --test node --test persist.test.mjs
+          node ../witness/witness.mjs mutate run-loop.mjs --timeout 60000 --test node --test run-loop.test.mjs

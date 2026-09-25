@@ -1,0 +1,12 @@
+[
+  {
+    "mutation": "|| → &&",
+    "snippet": "if (typeof key !== 'string' || !key) return { ok: false, why: 'key must be a non-empty str",
+    "reason": "Equivalent given write()'s own identical guard. write() refuses any key that fails this exact check, so no fact can ever exist in `store` under a key that would fail it here. Bypassing this check via the mutation only means execution falls through to `if (!recs || recs.length === 0)` immediately below, which store.get(key) satisfies for any such key (undefined, since nothing was ever stored there) — producing the identical {ok:false} outcome through a different `why` message. The check has real independent value (a clearer error for callers: 'bad input shape' vs 'no data yet'), which is why it stays rather than being deleted, but no test can distinguish the mutation because the two refusal paths are behaviorally identical at the {ok:false} boundary every caller actually observes."
+  },
+  {
+    "mutation": "|| → &&",
+    "snippet": "if (typeof source !== 'string' || !source) return { ok: false, why: 'source must be a non-",
+    "reason": "Same reasoning as the key-check exemption directly above, one level in: write() refuses any source failing this identical check, so `candidates = recs.filter((r) => r.source === source)` can never match a real fact for a source that should have been refused here — the mutation is masked by `if (candidates.length === 0) return {ok:false, why:'no fact recorded...'}` two lines below, which fires for the exact same reason. Kept for the clearer error message, not killable by any test given that cross-function invariant."
+  }
+]

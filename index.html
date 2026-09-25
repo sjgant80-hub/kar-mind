@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kar-mind</title>
+<meta name="description" content="A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system — and structurally cannot publish or spend. No LLM judge; every check is deterministic.">
+<link rel="canonical" href="https://sjgant80-hub.github.io/kar-mind/">
+<meta property="og:title" content="kar-mind">
+<meta property="og:description" content="A persistent, autonomous cognitive stack that composes verified memory organs — and structurally cannot publish or spend.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sjgant80-hub.github.io/kar-mind/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "kar-mind",
+  "description": "A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system — and structurally cannot publish or spend. Cognition is event-sourced and sealed to a durable receipt-checked disk journal; the mind runs its own loop and rebuilds whole after a restart. No LLM is used as a judge; every check is deterministic and re-runnable.",
+  "codeRepository": "https://github.com/sjgant80-hub/kar-mind",
+  "programmingLanguage": "JavaScript",
+  "runtimePlatform": "Node.js 18+",
+  "license": "https://opensource.org/licenses/MIT",
+  "author": { "@type": "Person", "name": "karma-didy (Kar)" },
+  "keywords": "memory, cognitive architecture, event sourcing, durable persistence, autonomous agent, no LLM judge, deterministic",
+  "citation": [
+    { "@type": "CreativeWork", "name": "NEXUS", "author": { "@type": "Person", "name": "Gary W. Floyd" }, "publisher": { "@type": "Organization", "name": "Lumiea Systems Research Division, ThunderStruck Service LLC" }, "datePublished": "2026" },
+    { "@type": "CreativeWork", "name": "Dream State Architecture", "author": { "@type": "Person", "name": "Gary W. Floyd" }, "datePublished": "2025" },
+    { "@type": "CreativeWork", "name": "Konomi / MianoCube", "author": { "@type": "Person", "name": "Thomas Frumkin" } }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is kar-mind?", "acceptedAnswer": { "@type": "Answer", "text": "A persistent, autonomous cognitive stack that wires small, independently-gated memory organs into one runnable system: it perceives a fact, cross-checks it against independent sources, consolidates it into meaning, generates new facts and loops them back, and births new domains — through real organs, with every state change read from each organ's own count." } },
+    { "@type": "Question", "name": "Does kar-mind use an LLM as a judge?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every check is deterministic and re-runnable — cross-source verification, recall scoring, and the output verifier are all code, with no model-in-the-loop scoring." } },
+    { "@type": "Question", "name": "How does it survive a restart?", "acceptedAnswer": { "@type": "Answer", "text": "Cognition is event-sourced: every state-changing verb records its cause, and the log is sealed to disk with real gzip and a receipt hash over every field, tamper-refused on load. On boot the organs replay the log and reach identical counts — a write-ahead-log persistence architecture." } },
+    { "@type": "Question", "name": "Can the autonomous loop publish or spend on its own?", "acceptedAnswer": { "@type": "Answer", "text": "No. The run-loop imports no path to any irreversible outside-world action — there is no publish verb and no spend verb reachable from it, by construction. The export door itself is doubly gated by a consent id and a path wall, and a test proves a full autonomous run stages no export and writes no file." } },
+    { "@type": "Question", "name": "How do I run it?", "acceptedAnswer": { "@type": "Answer", "text": "Clone the three public sibling organs (fall-remember, the-dreamer, fallforgecell) next to kar-mind, then run `node mind-autonomous-demo.mjs`. Requires Node 18+ and has no dependencies." } }
+  ]
+}
+</script>
+<style>
+:root {
+  --bg: #fbfbfa; --fg: #1a1a19; --muted: #605d57; --line: #e4e2dc;
+  --card: #ffffff; --accent: #3d5a45; --code-bg: #f2f1ec;
+}
+:root:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16171a; --fg: #e8e7e3; --muted: #a2a09a; --line: #2c2e33;
+    --card: #1d1f23; --accent: #8fb89a; --code-bg: #22242a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16171a; --fg: #e8e7e3; --muted: #a2a09a; --line: #2c2e33;
+  --card: #1d1f23; --accent: #8fb89a; --code-bg: #22242a;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 48px 16px 80px; }
+header { border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 32px; }
+h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: -0.02em; }
+.tagline { font-size: 1.15rem; color: var(--muted); margin: 0; }
+h2 { font-size: 1.2rem; margin: 36px 0 12px; letter-spacing: -0.01em; }
+p { margin: 0 0 14px; }
+a { color: var(--accent); }
+ul { padding-left: 20px; }
+li { margin: 4px 0; }
+code { background: var(--code-bg); padding: 1px 6px; border-radius: 4px; font-size: 0.9em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+pre { background: var(--code-bg); padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
+pre code { background: none; padding: 0; }
+.wall { border: 1px solid var(--line); border-left: 3px solid var(--accent); background: var(--card); border-radius: 8px; padding: 16px 18px; margin: 20px 0; }
+.muted { color: var(--muted); font-size: 0.9rem; }
+footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.88rem; }
+.organs li b { color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>kar-mind</h1>
+  <p class="tagline">A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system — and structurally cannot publish or spend.</p>
+</header>
+
+<p>kar-mind wires small, independently-gated memory organs into one mind. It perceives a fact,
+cross-checks it against independent sources, consolidates it into meaning, generates new facts and
+loops them back, and births new domains — through real organs, with every state change read from each
+organ's own count. Nothing here uses an LLM as a judge; every check is deterministic and re-runnable.</p>
+
+<h2>The organs</h2>
+<ul class="organs">
+  <li><b>crystal</b> — exact facts, no drift; a read never blends one source's value into another's.</li>
+  <li><b>octa</b> — verify: cross-checks 3+ independent sources per field, refuses a panel of duplicates.</li>
+  <li><b>strand</b> — the movement law: recall score, then promote / hold / decay / expire, then the shelf transition.</li>
+  <li><b>dodeca</b> — meaning: cosine-embedding retrieval.</li>
+  <li><b>icosa</b> — generate: a dream cycle infers new facts from repeated patterns and loops the best back.</li>
+  <li><b>tetra</b> — birth: bounded new-domain detection (novelty threshold + hard capacity cap).</li>
+</ul>
+
+<h2>It survives a restart</h2>
+<p>Cognition is event-sourced: every state-changing verb records its cause. The log is sealed to disk
+with real gzip and a receipt hash over every field (tamper-refused on load), and on boot the organs
+replay it and reach identical counts — a write-ahead-log persistence architecture. A brand-new process
+boots from the durable file alone and comes back whole.</p>
+
+<h2>It runs its own loop</h2>
+<p>From one call, the run-loop pulls its own stimuli and drives the full cascade over and over, moving
+real organ state with no caller per step — governed by a safety cap, stopping on dead air rather than
+spinning, and persisting itself each beat.</p>
+
+<div class="wall">
+  <b>The safety wall.</b> The autonomous loop can perceive, verify, consolidate, dream, and route — all
+  cognition, all reversible, all inside the mind's own walled memory. It <b>cannot</b> publish or spend:
+  the loop has no path to any irreversible outside-world action, by construction. The export door stays
+  doubly gated by a consent id and a path wall, and a test proves a full autonomous run writes no file.
+</div>
+
+<h2>Run it</h2>
+<pre><code>git clone https://github.com/sjgant80-hub/kar-mind.git
+git clone https://github.com/sjgant80-hub/fall-remember.git
+git clone https://github.com/sjgant80-hub/the-dreamer.git
+git clone https://github.com/sjgant80-hub/fallforgecell.git
+
+cd kar-mind
+node mind-autonomous-demo.mjs   # boot, run the loop, persist, restart from disk
+node --test                    # the full gate suite</code></pre>
+<p class="muted">Requires Node 18+ (standard <code>CompressionStream</code> gzip and the built-in
+<code>node --test</code> runner). No dependencies.</p>
+
+<h2>Credits</h2>
+<p>This project composes and builds on others' work, credited in full:</p>
+<ul>
+  <li><b>Gary W. Floyd</b> — Lumiea Systems Research Division, ThunderStruck Service LLC. The
+  distinct-tier memory architecture and the <code>nexus_shortterm</code> schema from <i>NEXUS</i> (2026)
+  and <i>Dream State Architecture</i> (2025) are the reference the durable write-ahead-log persistence
+  is shaped after.</li>
+  <li><b>Thomas Frumkin</b> — the <i>Konomi / MianoCube</i> architecture: the cube/database-split method
+  ("the cube processes, the database persists") this stack forks from.</li>
+</ul>
+<p>The composition, the recall-law curve, and the organ kernels are this project's own work.</p>
+
+<footer>
+  Built by karma-didy ("Kar"). MIT-licensed.
+  <a href="https://github.com/sjgant80-hub/kar-mind">Source on GitHub</a>.
+</footer>
+</div>
+</body>
+</html>

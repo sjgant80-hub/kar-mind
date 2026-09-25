@@ -1,0 +1,42 @@
+# kar-mind
+
+> A persistent, autonomous cognitive stack that composes verified memory organs into one runnable
+> system — and structurally cannot publish or spend. No LLM is used as a judge; every check is
+> deterministic and re-runnable.
+
+kar-mind wires small, independently-gated memory organs into one mind: it perceives a fact,
+cross-checks it against independent sources, consolidates it into meaning, generates new facts and
+loops them back, and births new domains — through real organs, with every state change read from each
+organ's own count. It remembers itself to a durable, receipt-sealed disk journal (real gzip, a receipt
+hash over every field) and comes back whole after a restart. It runs its own loop on its own cadence,
+with no caller per step. It cannot publish or spend on its own — the loop has no path to any
+irreversible outside-world action, by construction.
+
+## Organs
+- crystal: exact facts, no drift, no embeddings — a read never blends one source's value into another's
+- octa: verify — cross-checks 3+ independent sources per field, refuses a panel of duplicate sources
+- strand: the movement law — recall score, then promote / hold / decay / expire, then the shelf transition
+- dodeca: meaning — cosine-embedding retrieval
+- icosa: generate — a dream cycle infers new facts from repeated patterns and loops the best back
+- tetra: birth — bounded new-domain detection (novelty threshold + hard capacity cap)
+
+## Persistence and autonomy
+- Event-sourced: every state-changing verb records its cause; the log is sealed to disk and replayed
+  on boot, so the rebuilt mind reaches identical counts. A write-ahead-log persistence architecture.
+- The run-loop pulls its own work and drives the full cascade repeatedly from one start; governed by a
+  safety cap and a dead-air stop.
+
+## Run
+- Clone the three sibling organs (fall-remember, the-dreamer, fallforgecell) next to kar-mind, then:
+  `node mind-autonomous-demo.mjs` (boot, run the loop, persist, restart from disk with state intact)
+- `node --test` runs the full gate suite. Requires Node 18+; no dependencies.
+
+## Credits
+- Gary W. Floyd — Lumiea Systems Research Division, ThunderStruck Service LLC — NEXUS (2026) and Dream
+  State Architecture (2025): the distinct-tier memory architecture and the nexus_shortterm schema that
+  the durable write-ahead-log persistence is shaped after.
+- Thomas Frumkin — Konomi / MianoCube: the cube/database-split method the stack forks from.
+
+## Links
+- Repository: https://github.com/sjgant80-hub/kar-mind
+- README: https://github.com/sjgant80-hub/kar-mind#readme

@@ -1,0 +1,9 @@
+node_modules/
+*.log
+*.tmp
+# runtime persistence journals written by the demos — not source
+*.journal
+*.journal.gz
+.si-didy/
+persist-*.dat
+.DS_Store

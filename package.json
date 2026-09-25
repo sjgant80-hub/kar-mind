@@ -1,0 +1,30 @@
+{
+  "name": "kar-mind",
+  "version": "0.1.0",
+  "description": "A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system — and structurally cannot publish or spend.",
+  "type": "module",
+  "license": "MIT",
+  "author": "karma-didy (Kar)",
+  "keywords": [
+    "memory",
+    "cognitive-architecture",
+    "event-sourcing",
+    "durable",
+    "autonomous",
+    "no-llm-judge",
+    "deterministic"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "demo": "node mind-autonomous-demo.mjs",
+    "demo:cascade": "node mind-demo.mjs",
+    "eval": "node eval-run.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjgant80-hub/kar-mind"
+  }
+}
