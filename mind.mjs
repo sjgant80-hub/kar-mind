@@ -2,7 +2,7 @@
 // mind.mjs — THE UNIFYING ORGAN. Composes the estate's cognitive-stack organs into ONE runnable
 // system: crystal (facts) · strand (movement) · the three wires to the real estate organs (dodeca
 // = fall-remember, icosa = the-dreamer, octa = Veridia/fallforgecell) · tetra (birth) · the
-// primitives (consent-gate, wall) · the verifier (wisp-discriminator). Built by karma-didy ("Kar"),
+// primitives (consent-gate, wall) · the verifier (wisp-discriminator). Built by Kar,
 // 2026-09-25, from the founding brief: "wrap everything into a unifying repo and nest the organs
 // inside it to become one full complete system."
 //

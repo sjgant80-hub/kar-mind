@@ -120,7 +120,7 @@ This project composes and builds on others' work, credited in full:
   cube processes, the database persists") this stack forks from.
 
 The composition, the recall-law curve, and the organ kernels are this project's own work. Built by
-**karma-didy ("Kar")**.
+**Kar**.
 
 ## License
 
