@@ -4,7 +4,7 @@
   "description": "A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system, and keeps an agent's working memory in its sealed journal — and structurally cannot publish or spend.",
   "type": "module",
   "license": "MIT",
-  "author": "Kar",
+  "author": "sjgant80-hub <sjgant80@gmail.com>",
   "keywords": [
     "memory",
     "cognitive-architecture",
@@ -29,5 +29,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/sjgant80-hub/kar-mind"
-  }
+  },
+  "main": "brain-cli.mjs"
 }
