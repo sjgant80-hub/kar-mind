@@ -46,6 +46,9 @@ jobs:
           # Kar watches himself (2026-10-01): the seal and playbook v1 re-derived; once measured, replies re-graded and v2 re-folded
           if [ -f data/watch-prereg.json ]; then node tools/watch-measure.mjs --check; fi
           if [ -f data/watch-run.json ]; then node tools/watch-measure.mjs --verify; fi
+          # the seed's codec (2026-10-01): its seal, and its counts re-graded (the workload stays private)
+          if [ -f data/codec-prereg.json ]; then node tools/codec-measure.mjs --check; fi
+          if [ -f data/codec-run.json ]; then node tools/codec-measure.mjs --verify; fi
           node tools/build-page.mjs
           git diff --exit-code -- index.html README.md || { echo "the page is stale: run node tools/build-page.mjs and commit"; exit 1; }
 
@@ -81,3 +84,5 @@ jobs:
           grep -q '"clean": true' pattern.out || { echo "::error::mutants survived in pattern.mjs"; exit 1; }
           node ../witness/witness.mjs mutate watch.mjs --timeout 60000 --test node --test watch.test.mjs | tee watch.out
           grep -q '"clean": true' watch.out || { echo "::error::mutants survived in watch.mjs"; exit 1; }
+          node ../witness/witness.mjs mutate seedcodec.mjs --timeout 60000 --test node --test seedcodec.test.mjs | tee codec.out
+          grep -q '"clean": true' codec.out || { echo "::error::mutants survived in seedcodec.mjs"; exit 1; }
