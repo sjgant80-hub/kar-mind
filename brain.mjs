@@ -120,12 +120,21 @@ export function decisionsOf(state) {
 
 // What a session (and every cockpit message) starts with. Small and true: the estate, the latest builds,
 // what changed since the last look, what is open, what is next, and what only Simon decides.
-export function digest({ state, index, since = 0, now = 0, recentMax = 6, changedMax = 8 } = {}) {
+// keyFacts (the 2026-10-01 fix pass): under each recent build, its own memory file's description — the sha,
+// the scores, the keys — because the one-line index entry alone left facts out (the champion's key was in
+// kard-evolve.md, never in the index line, so the first measurement asked for a fact the digest did not hold).
+export function digest({ state, index, since = 0, now = 0, recentMax = 6, changedMax = 8, keyFacts = false } = {}) {
   if (!(state instanceof Map) || !isObj(index)) return null;
   const L = ['── KAR\'S BRAIN · working memory, read from the persistent journal (' + state.size + ' facts) ──'];
   if (index.estate) L.push('ESTATE: ' + clip(index.estate, MAX_LINE));
   const recent = Array.isArray(index.recent) ? index.recent.slice(0, recentMax) : [];
-  if (recent.length) L.push('RECENT BUILDS, newest first:', ...recent.map((r) => '· ' + r.name + ' — ' + clip(str(r.text), MAX_LINE)));
+  if (recent.length) L.push('RECENT BUILDS, newest first:');
+  for (const r of recent) {
+    L.push('· ' + r.name + ' — ' + clip(str(r.text), MAX_LINE));
+    const own = keyFacts ? state.get('memory:' + r.name) : null;
+    const facts = own && isObj(own.value) ? keyFactsOf(own.value.d, r.text) : '';
+    if (facts) L.push('   key facts: ' + facts);
+  }
   const changed = family(state, 'memory:').filter((m) => m.ts > since).sort((a, b) => b.ts - a.ts);
   L.push('CHANGED SINCE THE LAST LOOK (' + changed.length + '):' + (changed.length ? '' : ' nothing'));
   for (const m of changed.slice(0, changedMax)) L.push('· ' + m.id + ' — ' + clip(str(m.d), 200));
@@ -137,6 +146,31 @@ export function digest({ state, index, since = 0, now = 0, recentMax = 6, change
   for (const d of ds) L.push('· ' + d.say);
   if (Number.isFinite(now) && now > 0) L.push('(read ' + new Date(now).toISOString() + ')');
   return L.join('\n');
+}
+
+// A fact token: a commit, a key like UV|515, a score like 352/352, a money figure, or any number with a digit.
+export const FACT = /\b[0-9a-f]{7}\b|[A-Za-z0-9.]+\|\d+|\b\d[\d,.]*\s*\/\s*\d[\d,.]*|[$£€]\s?\d[\d,.]*[kKmM]?|\b\d[\d,.]*/g;
+// keyFactsOf(desc, line, max): the clauses of a build's own description that carry a fact the index line does
+// not already carry, joined and capped — so the digest gains the champion's key without doubling in size (a
+// digest twice as long took a 7B on this laptop past two minutes before it said a word).
+export function keyFactsOf(desc, line, max = 240) {
+  if (typeof desc !== 'string' || !desc) return '';
+  const have = typeof line === 'string' ? line : '';
+  const keep = [];
+  for (const raw of desc.split(/\s+—\s+|;\s+|\.\s+|,\s+(?=[A-Za-z])|\(|\)/)) {
+    const c = raw.replace(/⚑/g, '').trim();
+    if (c.length < 4 || /^https?:/.test(c)) continue;                      // a stray numeral, or an address, is not a fact about the build                                        // an address is not a fact about the build
+    const toks = c.replace(/\b\d{4}-\d{2}-\d{2}\b/g, '').match(FACT) || [];   // nor is the date it was written
+    if (toks.some((t) => !have.includes(t.trim()))) keep.push(c);
+  }
+  return clip(keep.join(' · '), max);
+}
+
+// Does a reply put off answering in order to go and look, or admit it does not know? The cockpit's local tier
+// answers from the brain first, with no tools offered; only a reply like this earns a second turn with tools.
+export const LOOKS = /\b(let me (check|look|search|find|see)|i('| wi)ll (check|look)|i (don'?t|do not) (have|know|see)|i('| a)?m not sure|not sure|no (information|record|data)|(can'?t|cannot|couldn'?t|could not) (find|see|tell|determine)|not (in|available in) my|not found)\b/i;
+export function needsLook(reply) {
+  return typeof reply !== 'string' || reply.trim() === '' || LOOKS.test(reply);
 }
 
 // ── the sealed measurement's grading: a reply is right when it carries the fact the question asks for.
@@ -170,4 +204,27 @@ export function judgeBrain({ withBrain, without, live, bars } = {}) {
   return { ok: true, rules, passed: rules.filter((r) => r.pass).length, of: rules.length };
 }
 
-export default { MAX_DESC, MAX_LINE, frontmatter, memoryFacts, indexLines, askFacts, backlogFacts, stateOf, changedFacts, nextBuild, decisionsOf, digest, gradeAnswer, scoreAnswers, judgeBrain };
+// The fix pass's sealed rules. Each arm: { marks, tools } over the same questions — the first `original` are the
+// first measurement's 20, the rest are held out (written before this was measured, never used to build the fix).
+export function judgeFix({ v1, v2, original, bars } = {}) {
+  const arm = (a) => isObj(a) && Array.isArray(a.marks) && Array.isArray(a.tools) && a.marks.length === a.tools.length;
+  if (!arm(v1) || !arm(v2) || v1.marks.length !== v2.marks.length || !Number.isInteger(original) || original < 1 || original >= v2.marks.length || !isObj(bars)
+    || !['originalAtLeast', 'heldAtLeast', 'beatsBy'].every((k) => Number.isInteger(bars[k]))) {
+    return { ok: false, why: 'two arms over the same questions ({ marks, tools }), how many are the original ones, and the sealed bars' };
+  }
+  const right = (a, from, to) => a.marks.slice(from, to).filter(Boolean).length;
+  const n = v2.marks.length, held = n - original;
+  const o2 = right(v2, 0, original), h2 = right(v2, original, n), t1 = right(v1, 0, n), t2 = right(v2, 0, n);
+  const lost = v1.marks.slice(0, original).filter((m, k) => m && !v2.marks[k]).length;
+  const looked = (a) => a.tools.filter((t) => t > 0).length;
+  const rules = [
+    { id: 'original-bar', pass: o2 >= bars.originalAtLeast, value: o2 + '/' + original + ' of the original questions' },
+    { id: 'held-out-bar', pass: h2 >= bars.heldAtLeast, value: h2 + '/' + held + ' of the held-out questions' },
+    { id: 'beats-v1', pass: t2 - t1 >= bars.beatsBy, value: t2 + ' vs ' + t1 + ' of ' + n },
+    { id: 'no-regression', pass: lost === 0, value: lost === 0 ? 'every original answer the first brain got right, the fixed one still gets right' : lost + ' original answer(s) lost' },
+    { id: 'fewer-tools', pass: looked(v2) < looked(v1), value: 'reached for a tool on ' + looked(v2) + ' questions, against ' + looked(v1) },
+  ];
+  return { ok: true, rules, passed: rules.filter((r) => r.pass).length, of: rules.length };
+}
+
+export default { MAX_DESC, MAX_LINE, LOOKS, needsLook, FACT, keyFactsOf, judgeFix, frontmatter, memoryFacts, indexLines, askFacts, backlogFacts, stateOf, changedFacts, nextBuild, decisionsOf, digest, gradeAnswer, scoreAnswers, judgeBrain };

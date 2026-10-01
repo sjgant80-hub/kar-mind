@@ -37,6 +37,9 @@ jobs:
         run: |
           node tools/brain-measure.mjs --check
           if [ -f data/brain-run.json ]; then node tools/brain-measure.mjs --verify; fi
+          # the fix pass (2026-10-01): its own seal, checked the same way
+          if [ -f data/brain-fix-prereg.json ]; then node tools/brain-fix-measure.mjs --check; fi
+          if [ -f data/brain-fix-run.json ]; then node tools/brain-fix-measure.mjs --verify; fi
           node tools/build-page.mjs
           git diff --exit-code -- index.html README.md || { echo "the page is stale: run node tools/build-page.mjs and commit"; exit 1; }
 

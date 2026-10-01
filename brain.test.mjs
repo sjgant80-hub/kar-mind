@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import B, { MAX_DESC, MAX_LINE, frontmatter, memoryFacts, indexLines, askFacts, backlogFacts, stateOf, changedFacts, nextBuild, decisionsOf, digest, gradeAnswer, scoreAnswers, judgeBrain } from './brain.mjs';
+import B, { MAX_DESC, MAX_LINE, LOOKS, needsLook, FACT, keyFactsOf, judgeFix, frontmatter, memoryFacts, indexLines, askFacts, backlogFacts, stateOf, changedFacts, nextBuild, decisionsOf, digest, gradeAnswer, scoreAnswers, judgeBrain } from './brain.mjs';
 
 const ev = (key, value, ts = 1, source = 's') => ({ t: 'perceive', fact: { key, value, source, ts } });
 const md = (desc, extra = '') => '---\nname: x\ndescription: ' + desc + '\n' + extra + '---\nbody';
@@ -8,7 +8,10 @@ const md = (desc, extra = '') => '---\nname: x\ndescription: ' + desc + '\n' + e
 test('the constants and the default export', () => {
   assert.equal(MAX_DESC, 400);
   assert.equal(MAX_LINE, 600);
-  assert.equal(Object.keys(B).length, 15);
+  assert.equal(Object.keys(B).length, 20);
+  assert.equal(B.needsLook, needsLook);
+  assert.equal(B.keyFactsOf, keyFactsOf);
+  assert.ok(LOOKS instanceof RegExp && FACT instanceof RegExp && FACT.global);
   assert.equal(B.judgeBrain, judgeBrain);
 });
 
@@ -200,4 +203,77 @@ test('judgeBrain: the sealed rules, each at its edge', () => {
     assert.equal(judgeBrain(args).ok, false);
   }
   assert.equal(judgeBrain().ok, false);
+});
+
+test('needsLook: a reply that goes to look, or does not know, earns the tools; an answer does not', () => {
+  for (const r of ['664 cards.', '2 out of 4.', 'UV|515', 'Settle the cheques', 'unsurely 4', 'The champion is UV|515.']) assert.equal(needsLook(r), false, r);
+  for (const r of ['Let me check the file.', 'let me look', 'Let me search', 'let me find it', 'Let me see.', "I'll check", 'I will check',
+    "I don't have that.", 'I do not know', "I don't see it", "I'm not sure", 'Not sure.', 'There is no information on it',
+    'no record of that', 'No data.', "I can't find it", 'cannot tell', "couldn't determine", 'could not see', 'not in my brain',
+    'not available in my memory', 'The repo is not found.', '', '   ', null, 5]) assert.equal(needsLook(r), true, String(r));
+});
+
+test('keyFactsOf: only the clauses that carry a fact the index line lacks', () => {
+  const desc = '⚑⚑ LIVE (Kar, 2026-09-30, Simon said go): readers of damaged codes. Sealed 5/5: champion UV|515 found U→V — swept 48/48 by gen 21; real 96 vs 94, 0 wrong';
+  const line = 'creatures EVOLVE, sealed 5/5 (held-out 352/352 vs 244)';
+  assert.equal(keyFactsOf(desc, line), 'Sealed 5/5: champion UV|515 found U→V · swept 48/48 by gen 21 · real 96 vs 94, 0 wrong');
+  assert.equal(keyFactsOf('LIVE 2d57105 — at https://x.io/a80/ — 1 — (2) — deck 664', 'deck 664'), 'LIVE 2d57105');
+  assert.equal(keyFactsOf('cost $0.2070 and £1.57M', ''), 'cost $0.2070 and £1.57M');
+  assert.equal(keyFactsOf('all of it is here: 664 cards', 'already 664 cards'), '');
+  assert.equal(keyFactsOf('words only, no facts at all', ''), '');
+  assert.equal(keyFactsOf('sjgant80 is a name — written 2026-09-30', ''), '');
+  assert.equal(keyFactsOf('a 12/13 score', null), 'a 12/13 score');
+  assert.equal(keyFactsOf('ab 1 — 7 — xy 9', ''), 'ab 1 · xy 9', 'four characters is a clause; three is a stray numeral');
+  assert.equal(keyFactsOf('x 1/2 · '.repeat(80) + 'end', '', 50).length, 50);
+  assert.equal(keyFactsOf('x 1/2 · y', '', 9), 'x 1/2 · y');
+  assert.equal(keyFactsOf('aaaa 1/2', '', 7), 'aaaa 1…');
+  for (const bad of [null, '', 5]) assert.equal(keyFactsOf(bad, 'x'), '');
+});
+
+test('digest with key facts: each recent build carries what its own memory adds', () => {
+  const state = stateOf([
+    ev('memory:kard-evolve', { d: 'Sealed 5/5: champion UV|515 found U→V — held-out 352/352' }),
+    ev('memory:fallworld', { d: 'nothing new here' }),
+    ev('memory:quiet', 'not an object'),
+  ]);
+  const index = { recent: [{ name: 'kard-evolve', text: 'held-out 352/352' }, { name: 'fallworld', text: 'deck' }, { name: 'quiet', text: 'q' }, { name: 'absent', text: 'a' }] };
+  const d = digest({ state, index, keyFacts: true });
+  assert.ok(d.includes('· kard-evolve — held-out 352/352\n   key facts: Sealed 5/5: champion UV|515 found U→V\n· fallworld — deck\n· quiet — q\n· absent — a\n'));
+  assert.ok(!digest({ state, index }).includes('key facts'), 'off unless asked for');
+});
+
+test('judgeFix: the fix pass rules, each at its edge', () => {
+  const A = (marks, tools) => ({ marks: marks.map(Boolean), tools });
+  const bars = { originalAtLeast: 2, heldAtLeast: 1, beatsBy: 2 };
+  const v1 = A([1, 0, 0, 0, 0], [0, 1, 2, 0, 0]);
+  const v2 = A([1, 1, 0, 1, 0], [0, 0, 0, 1, 0]);
+  const good = judgeFix({ v1, v2, original: 3, bars });
+  assert.deepEqual(good.rules, [
+    { id: 'original-bar', pass: true, value: '2/3 of the original questions' },
+    { id: 'held-out-bar', pass: true, value: '1/2 of the held-out questions' },
+    { id: 'beats-v1', pass: true, value: '3 vs 1 of 5' },
+    { id: 'no-regression', pass: true, value: 'every original answer the first brain got right, the fixed one still gets right' },
+    { id: 'fewer-tools', pass: true, value: 'reached for a tool on 1 questions, against 2' },
+  ]);
+  assert.deepEqual([good.passed, good.of], [5, 5]);
+  const bad = judgeFix({ v1: A([1, 1, 0, 0, 0], [1, 0, 0, 0, 0]), v2: A([0, 1, 0, 0, 0], [1, 0, 0, 0, 0]), original: 3, bars });
+  assert.deepEqual(bad.rules.map((r) => [r.pass, r.value]), [
+    [false, '1/3 of the original questions'], [false, '0/2 of the held-out questions'], [false, '1 vs 2 of 5'],
+    [false, '1 original answer(s) lost'], [false, 'reached for a tool on 1 questions, against 1'],
+  ]);
+  assert.equal(bad.passed, 0);
+  assert.equal(judgeFix({ v1: A([0, 0, 0, 0, 0], [0, 0, 0, 0, 0]), v2: A([1, 1, 0, 1, 0], [0, 0, 0, 0, 0]), original: 3, bars }).rules[2].pass, true);
+  assert.equal(judgeFix({ v1: A([1, 0, 0, 0, 0], [0, 0, 0, 0, 0]), v2: A([1, 1, 0, 0, 0], [0, 0, 0, 0, 0]), original: 3, bars }).rules[1].value, '0/2 of the held-out questions');
+  for (const args of [{}, { v1, v2: A([1], [0]), original: 3, bars }, { v1: { marks: [true], tools: [] }, v2, original: 3, bars }, { v1, v2, original: 0, bars }, { v1, v2, original: 5, bars },
+    { v1, v2, original: 2.5, bars }, { v1, v2, original: 3, bars: null }, { v1, v2, original: 3, bars: { ...bars, beatsBy: '2' } }, { v1, v2: { marks: 'x', tools: [] }, original: 3, bars }, { v1: { marks: [], tools: 'x' }, v2, original: 3, bars }]) {
+    assert.equal(judgeFix(args).ok, false);
+  }
+  assert.equal(judgeFix().ok, false);
+  // each refusal alone, everything else valid — so no guard can hide behind another
+  const five = A([1, 0, 0, 0, 0], [0, 0, 0, 0, 0]);
+  assert.equal(judgeFix({ v1: { marks: five.marks, tools: [0, 0, 0, 0] }, v2: five, original: 3, bars }).ok, false, 'v1 alone malformed');
+  assert.equal(judgeFix({ v1: five, v2: { marks: five.marks, tools: [0, 0, 0, 0] }, original: 3, bars }).ok, false, 'v2 alone malformed');
+  assert.equal(judgeFix({ v1: five, v2: A([1, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]), original: 3, bars }).ok, false, 'lengths differ, both well formed');
+  assert.equal(judgeFix({ v1: five, v2: five, original: 1, bars }).ok, true, 'one original question is enough');
+  assert.equal(judgeFix({ v1: five, v2: five, original: 4, bars }).ok, true, 'one held-out question is enough');
 });

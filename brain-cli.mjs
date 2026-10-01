@@ -59,12 +59,14 @@ export async function ingest() {
   return { read: facts.length, wrote, events: mind.events().length, journal: journal.path };
 }
 
-export async function readDigest({ mark = false, now = Date.now() } = {}) {
+// keyFacts and recentMax: the fix pass (2026-10-01) carries each recent build's own key facts and the last
+// eight builds; { keyFacts: false, recentMax: 6 } reads the digest exactly as it was first switched on.
+export async function readDigest({ mark = false, now = Date.now(), keyFacts = true, recentMax = 8 } = {}) {
   const { mind } = await open();
   const look = rd(file('look.json'), { at: 0 });
   let index = { estate: null, recent: [] };
   try { index = indexLines(readFileSync(join(PATHS.memory, 'MEMORY.md'), 'utf8')); } catch { /* no index yet */ }
-  const text = digest({ state: stateOf(mind.events()), index, since: look.at || 0, now });
+  const text = digest({ state: stateOf(mind.events()), index, since: look.at || 0, now, keyFacts, recentMax });
   writeFileSync(file('digest.txt'), text + '\n');
   if (mark) writeFileSync(file('look.json'), JSON.stringify({ at: now }) + '\n');
   return text;
