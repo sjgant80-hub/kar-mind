@@ -6,13 +6,13 @@
   "proof": {
     "benchmark": "assessor-v0.10",
     "core": "10/10",
-    "hash": "dbc82523fc1a2de68724cc16a20edcb5"
+    "hash": "5fe364b3a3595fc6f9ffab2bda6535a4"
   },
   "behaviour": {
     "gate": "witness",
     "clean": true,
     "score": 1,
-    "source": "mind.mjs, brain-cli.mjs, brain.mjs, breach-harness.mjs, consent-gate.mjs, crystal.mjs, mind-persistent.mjs, pattern.mjs, persist.mjs, run-loop.mjs, strand.mjs, tetra.mjs, wall.mjs, watch.mjs, wire-dodeca.mjs, wire-icosa.mjs, wire-octa.mjs, wisp-discriminator.mjs",
+    "source": "mind.mjs, brain-cli.mjs, brain.mjs, breach-harness.mjs, consent-gate.mjs, crystal.mjs, mind-persistent.mjs, pattern.mjs, persist.mjs, run-loop.mjs, seedcodec.mjs, strand.mjs, tetra.mjs, wall.mjs, watch.mjs, wire-dodeca.mjs, wire-icosa.mjs, wire-octa.mjs, wisp-discriminator.mjs",
     "skipped": false
   },
   "basis": {
