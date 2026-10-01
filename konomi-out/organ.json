@@ -1,0 +1,30 @@
+{
+  "id": "kar-mind",
+  "ring": "R2-gate",
+  "mesh": "niceassos-mesh",
+  "konomified": null,
+  "proof": {
+    "benchmark": "assessor-v0.10",
+    "core": "10/10",
+    "hash": "3b4983589c574fbfce69d663190738e3"
+  },
+  "behaviour": {
+    "gate": "witness",
+    "clean": true,
+    "score": 1,
+    "source": "mind.mjs, brain-cli.mjs, brain.mjs, breach-harness.mjs, consent-gate.mjs, crystal.mjs, mind-persistent.mjs, persist.mjs, run-loop.mjs, strand.mjs, tetra.mjs, wall.mjs, wire-dodeca.mjs, wire-icosa.mjs, wire-octa.mjs, wisp-discriminator.mjs",
+    "skipped": false
+  },
+  "basis": {
+    "compliance": {
+      "aiAct": "not engaged",
+      "gdpr": false,
+      "duties": 0,
+      "asOf": "2026-10-01"
+    },
+    "prices": {
+      "locked": 0,
+      "priced": 0
+    }
+  }
+}
