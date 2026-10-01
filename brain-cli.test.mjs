@@ -67,20 +67,22 @@ test('the journal survives: a fresh boot replays it to the same facts', async ()
 });
 
 test('the digest reads the working memory back, and marking moves the last look', async () => {
-  const d = await cli.readDigest({ mark: true, now: Date.UTC(2026, 9, 1, 12) });
+  // the look is marked far in the future: the fixture's files are written as the test runs, so a fixed date in the
+  // present would make them look changed once the clock passed it (it did, at noon UTC on 2026-10-01)
+  const d = await cli.readDigest({ mark: true, now: Date.UTC(2099, 0, 1) });
   assert.ok(d.startsWith('── KAR\'S BRAIN · working memory, read from the persistent journal (5 facts) ──'));
   assert.ok(d.includes('ESTATE: ESTATE = 1,768 repos'));
   assert.ok(d.includes('· world — LIVE 2d57105'));
   assert.ok(d.includes('NEXT BUILD (Simon\'s approved order): 1 · Build one'));
   assert.ok(d.includes('DECISIONS ONLY SIMON MAKES (1):\n· pick a name'));
   assert.ok(d.includes('· forge — the forge prints a seal, and reads U as V'));
-  assert.ok(d.endsWith('(read 2026-10-01T12:00:00.000Z)'));
+  assert.ok(d.endsWith('(read 2099-01-01T00:00:00.000Z)'));
   assert.equal(readFileSync(join(A.brain, 'digest.txt'), 'utf8'), d + '\n');
-  assert.deepEqual(JSON.parse(readFileSync(join(A.brain, 'look.json'), 'utf8')), { at: Date.UTC(2026, 9, 1, 12) });
+  assert.deepEqual(JSON.parse(readFileSync(join(A.brain, 'look.json'), 'utf8')), { at: Date.UTC(2099, 0, 1) });
   const later = await cli.readDigest({ mark: false, now: 0 });
   assert.ok(later.includes('CHANGED SINCE THE LAST LOOK (0): nothing'));
   assert.ok(!later.includes('(read '));
-  assert.deepEqual(JSON.parse(readFileSync(join(A.brain, 'look.json'), 'utf8')), { at: Date.UTC(2026, 9, 1, 12) }, 'reading without a mark leaves the last look alone');
+  assert.deepEqual(JSON.parse(readFileSync(join(A.brain, 'look.json'), 'utf8')), { at: Date.UTC(2099, 0, 1) }, 'reading without a mark leaves the last look alone');
   const viaCli = run(A, 'digest');
   assert.equal(viaCli.status, 0);
   assert.ok(viaCli.stdout.includes('CHANGED SINCE THE LAST LOOK (0): nothing'));

@@ -40,6 +40,9 @@ jobs:
           # the fix pass (2026-10-01): its own seal, checked the same way
           if [ -f data/brain-fix-prereg.json ]; then node tools/brain-fix-measure.mjs --check; fi
           if [ -f data/brain-fix-run.json ]; then node tools/brain-fix-measure.mjs --verify; fi
+          # Simon's pattern (2026-10-01): sealed the same way; its run is re-derived from the published counts
+          if [ -f data/pattern-prereg.json ]; then node tools/pattern-measure.mjs --check; fi
+          if [ -f data/pattern-run.json ]; then node tools/pattern-measure.mjs --verify; fi
           node tools/build-page.mjs
           git diff --exit-code -- index.html README.md || { echo "the page is stale: run node tools/build-page.mjs and commit"; exit 1; }
 
@@ -71,3 +74,5 @@ jobs:
         run: |
           node ../witness/witness.mjs mutate brain.mjs --timeout 60000 --test node --test brain.test.mjs | tee brain.out
           grep -q '"clean": true' brain.out || { echo "::error::mutants survived in brain.mjs"; exit 1; }
+          node ../witness/witness.mjs mutate pattern.mjs --timeout 60000 --test node --test pattern.test.mjs | tee pattern.out
+          grep -q '"clean": true' pattern.out || { echo "::error::mutants survived in pattern.mjs"; exit 1; }
