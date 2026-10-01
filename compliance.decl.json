@@ -1,0 +1,11 @@
+{
+ "declared": true,
+ "name": "kar-mind",
+ "system": "A zero-dependency Node library that composes deterministic memory organs into one persistent mind, plus the glue that keeps an agent's working memory in that mind's sealed local journal (memory files, asks and a build queue in; a text digest out). It runs on the owner's own machine, uses no AI model itself and judges nothing with one. A local-only measurement script asks a model the owner already runs on the same machine (through Ollama) and grades its replies by rule. Nothing is sent anywhere.",
+ "ai": "none",
+ "builtBy": "self",
+ "deployment": "local",
+ "personalData": false,
+ "euOutput": true,
+ "generatesContent": false
+}

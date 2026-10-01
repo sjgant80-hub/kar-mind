@@ -1,0 +1,33 @@
+{
+ "ok": true,
+ "v": 1,
+ "system": "A zero-dependency Node library that composes deterministic memory organs into one persistent mind, plus the glue that keeps an agent's working memory in that mind's sealed local journal (memory files, asks and a build queue in; a text digest out). It runs on the owner's own machine, uses no AI model itself and judges nothing with one. A local-only measurement script asks a model the owner already runs on the same machine (through Ollama) and grades its replies by rule. Nothing is sent anywhere.",
+ "asOf": "2026-10-01",
+ "lawChecked": "2026-09-30",
+ "ai": "none",
+ "deployment": "local",
+ "annexIII": null,
+ "aiAct": {
+  "applies": false,
+  "why": "No AI system (Art 3(1)): the build runs no model that infers its outputs, so the AI Act places no duty on it."
+ },
+ "gdpr": {
+  "applies": false,
+  "why": "No personal data is processed, so no GDPR / UK GDPR duty arises from the build."
+ },
+ "items": [],
+ "counts": {
+  "removed": 0,
+  "eased": 0,
+  "yours": 0,
+  "shared": 0,
+  "unchanged": 0
+ },
+ "applying": 0,
+ "inForce": 0,
+ "upcoming": [],
+ "blocking": [],
+ "build": "kar-mind",
+ "generatedBy": "fall-euaiact comply.mjs",
+ "lawSource": "https://github.com/sjgant80-hub/fall-euaiact/blob/main/law/law.json"
+}

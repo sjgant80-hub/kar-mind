@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: kar-mind
+          fetch-depth: 0   # the brain's seal is checked against the commit that sealed it
       - name: clone the three public sibling organs
         run: |
           git clone --depth 1 https://github.com/sjgant80-hub/fall-remember.git fall-remember
@@ -28,6 +29,16 @@ jobs:
       - name: run the whole gate suite (unit + wired edge-gates + persistence + autonomy + restart)
         working-directory: kar-mind
         run: node --test
+      # THE BRAIN, switched on 2026-10-01: its measurement was sealed before anything was asked. The seal must
+      # be what the script writes; once measured, every recorded reply must re-grade to the committed result;
+      # and the page's numbers must be what the grader gives.
+      - name: the brain's seal, its replies re-graded, and its page
+        working-directory: kar-mind
+        run: |
+          node brain-measure.mjs --check
+          if [ -f data/brain-run.json ]; then node brain-measure.mjs --verify; fi
+          node build-page.mjs
+          git diff --exit-code -- index.html README.md || { echo "the page is stale: run node build-page.mjs and commit"; exit 1; }
 
   witness:
     name: mutation gate (witness)
@@ -52,3 +63,8 @@ jobs:
           node ../witness/witness.mjs mutate mind.mjs     --timeout 60000 --test node --test mind.test.mjs
           node ../witness/witness.mjs mutate persist.mjs  --timeout 60000 --test node --test persist.test.mjs
           node ../witness/witness.mjs mutate run-loop.mjs --timeout 60000 --test node --test run-loop.test.mjs
+      - name: witness the brain's law (nothing baselined; refuse anything short of clean)
+        working-directory: kar-mind
+        run: |
+          node ../witness/witness.mjs mutate brain.mjs --timeout 60000 --test node --test brain.test.mjs | tee brain.out
+          grep -q '"clean": true' brain.out || { echo "::error::mutants survived in brain.mjs"; exit 1; }

@@ -1,7 +1,7 @@
 {
   "name": "kar-mind",
   "version": "0.1.0",
-  "description": "A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system — and structurally cannot publish or spend.",
+  "description": "A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system, and keeps an agent's working memory in its sealed journal — and structurally cannot publish or spend.",
   "type": "module",
   "license": "MIT",
   "author": "Kar",
@@ -21,7 +21,10 @@
     "test": "node --test",
     "demo": "node mind-autonomous-demo.mjs",
     "demo:cascade": "node mind-demo.mjs",
-    "eval": "node eval-run.mjs"
+    "eval": "node eval-run.mjs",
+    "brain": "node brain-cli.mjs digest",
+    "brain:ingest": "node brain-cli.mjs ingest",
+    "page": "node build-page.mjs"
   },
   "repository": {
     "type": "git",
