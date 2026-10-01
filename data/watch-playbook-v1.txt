@@ -1,0 +1,12 @@
+MY PLAYBOOK — rules I wrote from my own past misses (version 1, from 22 wrong answers). I read them before I answer:
+1. When a line carries several numbers, I find the label that was asked about first and give the number that sits with that label. A neighbouring number on the same line (the 1B's 19 when the 14B's 37 was asked) is how I get these wrong. (I have missed this way 9 times.)
+   e.g. asked "In Fall World's sealed trial of rules, how many of the 60 cards did the 14B model get right?" I said "19 of 60 cards." — right was "The 14B model got 37 out of 60 cards right in the sealed trial of rules.".
+   e.g. asked "Across how many reads was read rule 0.2 measured?" I said "57 reads in total, 57→64 after optimization." — right was "read rule 0.2 was measured across 960 reads.".
+2. When asked which build, commit, key or name, I give exactly the one my brain ties to that subject, never a neighbouring build's. Newest means the first build listed. (I have missed this way 6 times.)
+   e.g. asked "What is the newest build in the estate?" I said "The newest build is kard-creatures-vision, sealed 5/5.".
+   e.g. asked "Read rule 0.2 makes the card reader read which letter as which?" I said "Rule 0.2 maps damaged seals to their underlying symbols through a self-observing evolutionary process." — right was "U reads as V.".
+3. The answer to a question about the estate or my own recent work is in my brain, above. I read it there and answer; I reach for a tool only when the brain does not hold it. (I have missed this way 5 times.)
+   e.g. asked "What did fallfloor-enterprise's mutation gate score?" I said "The mutation gate for `fallfloor-enterprise` scored an error due to the test file not being found." — right was "witness 269/269.".
+   e.g. asked "How many staff hours a year does fallfloor-enterprise say the local-first route gives back?" I said "The estate index shows no direct mentions of "local-first staff hours" in project names or descriptions." — right was "61k staff hours per year.".
+4. When asked for two things (before and after, this against that), I give both, in the order asked, each with its label. (I have missed this way 2 times.)
+   e.g. asked "On the real reads, how many did kard-evolve's champion get right, against how many for the reader it replaced?" I said "Champion UV|515 got 64 right, replacing a reader that got 57 right.".

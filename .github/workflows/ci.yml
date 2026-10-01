@@ -43,6 +43,9 @@ jobs:
           # Simon's pattern (2026-10-01): sealed the same way; its run is re-derived from the published counts
           if [ -f data/pattern-prereg.json ]; then node tools/pattern-measure.mjs --check; fi
           if [ -f data/pattern-run.json ]; then node tools/pattern-measure.mjs --verify; fi
+          # Kar watches himself (2026-10-01): the seal and playbook v1 re-derived; once measured, replies re-graded and v2 re-folded
+          if [ -f data/watch-prereg.json ]; then node tools/watch-measure.mjs --check; fi
+          if [ -f data/watch-run.json ]; then node tools/watch-measure.mjs --verify; fi
           node tools/build-page.mjs
           git diff --exit-code -- index.html README.md || { echo "the page is stale: run node tools/build-page.mjs and commit"; exit 1; }
 
@@ -76,3 +79,5 @@ jobs:
           grep -q '"clean": true' brain.out || { echo "::error::mutants survived in brain.mjs"; exit 1; }
           node ../witness/witness.mjs mutate pattern.mjs --timeout 60000 --test node --test pattern.test.mjs | tee pattern.out
           grep -q '"clean": true' pattern.out || { echo "::error::mutants survived in pattern.mjs"; exit 1; }
+          node ../witness/witness.mjs mutate watch.mjs --timeout 60000 --test node --test watch.test.mjs | tee watch.out
+          grep -q '"clean": true' watch.out || { echo "::error::mutants survived in watch.mjs"; exit 1; }
