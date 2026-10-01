@@ -12,6 +12,12 @@ hash over every field) and comes back whole after a restart. It runs its own loo
 with no caller per step. It cannot publish or spend on its own — the loop has no path to any
 irreversible outside-world action, by construction.
 
+## The brain, switched on (2026-10-01)
+- The organs are joined into one loop: every session start reads the agent's memory files, asks and build queue into the persistent journal through the real mind, and starts from the digest it reads back (latest builds, what changed, the next build, the decisions only its owner makes).
+- The owner's direct line to the agent (a local cockpit) reads the same brain on every message; a separate local service takes memory changes in live, with no restart.
+- The next build is the first open item in the owner's approved order; money, publishing and standing switches are named as the owner's decisions and nothing in the brain can act on one.
+- A sealed measurement asked the direct line 20 questions about real recent state with and without the brain; the result is on the live page and re-graded by CI.
+
 ## Organs
 - crystal: exact facts, no drift, no embeddings — a read never blends one source's value into another's
 - octa: verify — cross-checks 3+ independent sources per field, refuses a panel of duplicate sources
