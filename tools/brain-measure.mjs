@@ -20,9 +20,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash, randomBytes } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { homedir } from 'node:os';
-import { scoreAnswers, judgeBrain } from './brain.mjs';
+import { scoreAnswers, judgeBrain } from '../brain.mjs';
 
-const ROOT = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PRE = join(ROOT, 'data', 'brain-prereg.json'), OUT = join(ROOT, 'data', 'brain-run.json');
 const COCKPIT = 'C:/Users/sjgan/si-didy/kar-cockpit.mjs', SOUL = 'http://127.0.0.1:8791';
 const MEM = join(homedir(), '.claude', 'projects', 'C--Users-sjgan--claude', 'memory');
@@ -166,7 +166,7 @@ while (Date.now() - t0 < 60000 && !found) {
   } catch { /* soul busy — keep polling inside the minute */ }
   waited = Date.now() - t0;
 }
-const cli = await import('./brain-cli.mjs');
+const cli = await import('../brain-cli.mjs');
 await cli.ingest();
 const digestText = await cli.readDigest({ mark: false, now: 0 });
 let newest = null;

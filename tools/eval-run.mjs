@@ -2,9 +2,9 @@
 // eval-run.mjs — THE EVAL. Deterministic metrics, NO LLM judge — the estate's actual wedge. Measures
 // the specific properties where the nested-solid architecture and a standard RAG store genuinely
 // differ, each scored exactly. Designed to be able to say no: nothing here is pre-scored to win.
-import { createCrystal } from './crystal.mjs';
-import { FallRemember } from '../fall-remember/fall-remember.mjs';
-import { verifyBeforePromote } from './wire-octa.mjs';
+import { createCrystal } from '../crystal.mjs';
+import { FallRemember } from '../../fall-remember/fall-remember.mjs';
+import { verifyBeforePromote } from '../wire-octa.mjs';
 import { createRagBaseline } from './rag-baseline.mjs';
 
 let report = [];

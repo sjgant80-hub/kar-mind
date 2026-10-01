@@ -39,7 +39,7 @@
     { "@type": "Question", "name": "How does it survive a restart?", "acceptedAnswer": { "@type": "Answer", "text": "Cognition is event-sourced: every state-changing verb records its cause, and the log is sealed to disk with real gzip and a receipt hash over every field, tamper-refused on load. On boot the organs replay the log and reach identical counts — a write-ahead-log persistence architecture." } },
     { "@type": "Question", "name": "Can the autonomous loop publish or spend on its own?", "acceptedAnswer": { "@type": "Answer", "text": "No. The run-loop imports no path to any irreversible outside-world action — there is no publish verb and no spend verb reachable from it, by construction. The export door itself is doubly gated by a consent id and a path wall, and a test proves a full autonomous run stages no export and writes no file." } },
     { "@type": "Question", "name": "What does switching the brain on mean?", "acceptedAnswer": { "@type": "Answer", "text": "The organs are joined into one loop: every session start writes what changed in the agent's memory, asks and build queue into the persistent journal and starts from the digest it reads back; the owner's direct line reads the same brain on every message; and the next build comes from the owner's approved queue, while money, publishing and standing switches stay the owner's decisions." } },
-    { "@type": "Question", "name": "How do I run it?", "acceptedAnswer": { "@type": "Answer", "text": "Clone the three public sibling organs (fall-remember, the-dreamer, fallforgecell) next to kar-mind, then run `node mind-autonomous-demo.mjs`. Requires Node 18+ and has no dependencies." } }
+    { "@type": "Question", "name": "How do I run it?", "acceptedAnswer": { "@type": "Answer", "text": "Clone the three public sibling organs (fall-remember, the-dreamer, fallforgecell) next to kar-mind, then run `node examples/mind-autonomous-demo.mjs`. Requires Node 18+ and has no dependencies." } }
   ]
 }
 </script>
@@ -168,7 +168,7 @@ git clone https://github.com/sjgant80-hub/the-dreamer.git
 git clone https://github.com/sjgant80-hub/fallforgecell.git
 
 cd kar-mind
-node mind-autonomous-demo.mjs   # boot, run the loop, persist, restart from disk
+node examples/mind-autonomous-demo.mjs   # boot, run the loop, persist, restart from disk
 node --test                    # the full gate suite</code></pre>
 <p class="muted">Requires Node 18+ (standard <code>CompressionStream</code> gzip and the built-in
 <code>node --test</code> runner). No dependencies.</p>

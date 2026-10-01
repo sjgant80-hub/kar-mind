@@ -19,16 +19,16 @@
   },
   "scripts": {
     "test": "node --test",
-    "demo": "node mind-autonomous-demo.mjs",
-    "demo:cascade": "node mind-demo.mjs",
-    "eval": "node eval-run.mjs",
+    "demo": "node examples/mind-autonomous-demo.mjs",
+    "demo:cascade": "node examples/mind-demo.mjs",
+    "eval": "node tools/eval-run.mjs",
     "brain": "node brain-cli.mjs digest",
     "brain:ingest": "node brain-cli.mjs ingest",
-    "page": "node build-page.mjs"
+    "page": "node tools/build-page.mjs"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/sjgant80-hub/kar-mind"
   },
-  "main": "brain-cli.mjs"
+  "main": "mind.mjs"
 }

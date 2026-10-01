@@ -52,8 +52,10 @@ export async function ingest() {
   const fresh = changedFacts(state, facts);
   let wrote = 0;
   for (const f of fresh) if (mind.perceive(f).ok) wrote++;
-  const p = wrote ? await persistMind(journal, mind) : { ok: true, count: mind.events().length };
-  if (!p.ok) throw new Error('journal write failed: ' + p.why);
+  if (wrote) {
+    const p = await persistMind(journal, mind);
+    if (!p.ok) throw new Error(p.why);
+  }
   return { read: facts.length, wrote, events: mind.events().length, journal: journal.path };
 }
 

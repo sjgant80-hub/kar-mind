@@ -5,7 +5,7 @@
 // architecture (distinct organs + no-drift crystal + octa-verify) vs one blurred store, not
 // embedding quality. A rigged-weak baseline would invalidate the whole result, so this isn't one:
 // it's given the best-faith query it can reasonably be given in every eval that uses it.
-import { embed, cosine } from '../fall-remember/fall-remember.mjs';
+import { embed, cosine } from '../../fall-remember/fall-remember.mjs';
 
 export function createRagBaseline() {
   const store = []; // flat, append-only — the standard shape: everything blurred into one list

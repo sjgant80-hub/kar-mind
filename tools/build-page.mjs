@@ -5,9 +5,9 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { scoreAnswers, judgeBrain } from './brain.mjs';
+import { scoreAnswers, judgeBrain } from '../brain.mjs';
 
-const ROOT = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => readFileSync(join(ROOT, f), 'utf8').replace(/\r\n/g, '\n');
 const json = (f) => (existsSync(join(ROOT, f)) ? JSON.parse(read(f)) : null);
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

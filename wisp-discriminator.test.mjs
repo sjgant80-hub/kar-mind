@@ -55,3 +55,16 @@ test('garbage/missing input never throws and just fails the relevant check', () 
   assert.doesNotThrow(() => verifyWisp());
   assert.doesNotThrow(() => verifyWisp({ claimedFile: 123, claimedCrossRefPhrase: {} }));
 });
+
+test('the edges: an empty path, a path that is not a string, an empty or non-string phrase — each is a no', () => {
+  const real = { claimedFile: f('crystal.mjs'), claimedGateCompanion: f('crystal.test.mjs'), claimedCrossRefFile: f('crystal.mjs'), claimedCrossRefPhrase: 'exact recall that' };
+  assert.equal(verifyWisp({ ...real, claimedFile: '' }).provenanceReal, false);
+  assert.equal(verifyWisp({ ...real, claimedGateCompanion: '' }).gateBacked, false);
+  assert.equal(verifyWisp({ ...real, claimedFile: Buffer.from(f('crystal.mjs')) }).provenanceReal, false, 'a Buffer is not a path claim');
+  assert.equal(verifyWisp({ ...real, claimedGateCompanion: Buffer.from(f('crystal.test.mjs')) }).gateBacked, false);
+  assert.equal(verifyWisp({ ...real, claimedCrossRefPhrase: '' }).crossReferenced, false, 'an empty phrase is in every file, so it proves nothing');
+  assert.equal(verifyWisp({ ...real, claimedCrossRefPhrase: 0 }).crossReferenced, false, 'a number is not a claimed phrase');
+  assert.equal(verifyWisp({ ...real, claimedCrossRefFile: Buffer.from(f('crystal.mjs')) }).crossReferenced, false);
+  assert.equal(verifyWisp({ ...real, claimedCrossRefFile: f('no-such-file.mjs') }).crossReferenced, false);
+  assert.equal(verifyWisp(real).score, '3/3');
+});

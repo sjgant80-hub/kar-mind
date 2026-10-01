@@ -35,10 +35,10 @@ jobs:
       - name: the brain's seal, its replies re-graded, and its page
         working-directory: kar-mind
         run: |
-          node brain-measure.mjs --check
-          if [ -f data/brain-run.json ]; then node brain-measure.mjs --verify; fi
-          node build-page.mjs
-          git diff --exit-code -- index.html README.md || { echo "the page is stale: run node build-page.mjs and commit"; exit 1; }
+          node tools/brain-measure.mjs --check
+          if [ -f data/brain-run.json ]; then node tools/brain-measure.mjs --verify; fi
+          node tools/build-page.mjs
+          git diff --exit-code -- index.html README.md || { echo "the page is stale: run node tools/build-page.mjs and commit"; exit 1; }
 
   witness:
     name: mutation gate (witness)

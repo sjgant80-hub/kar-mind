@@ -11,13 +11,17 @@ import { existsSync, readFileSync } from 'node:fs';
 //   2. gateBacked       — does a claimed companion gate/test file genuinely exist alongside it?
 //   3. crossReferenced  — does the claimed cross-reference file genuinely CONTAIN the claimed phrase?
 // PASS requires all three. Total: never throws, bad/missing input just fails the relevant check.
+// A phrase is found only when it is a real, non-empty string and the file reads; any failure to read is a no.
+const readsAs = (file, phrase) => {
+  try { return typeof phrase === 'string' && phrase !== '' && readFileSync(file, 'utf8').includes(phrase); } catch { return false; }
+};
+
 export function verifyWisp({ claimedFile, claimedGateCompanion, claimedCrossRefFile, claimedCrossRefPhrase } = {}) {
-  const provenanceReal = typeof claimedFile === 'string' && claimedFile.length > 0 && existsSync(claimedFile);
-  const gateBacked = typeof claimedGateCompanion === 'string' && claimedGateCompanion.length > 0 && existsSync(claimedGateCompanion);
-  let crossReferenced = false;
-  if (typeof claimedCrossRefFile === 'string' && typeof claimedCrossRefPhrase === 'string' && claimedCrossRefPhrase.length > 0 && existsSync(claimedCrossRefFile)) {
-    try { crossReferenced = readFileSync(claimedCrossRefFile, 'utf8').includes(claimedCrossRefPhrase); } catch { crossReferenced = false; }
-  }
+  // existsSync('') is false, so an empty path needs no separate length check; the string check stays,
+  // because a Buffer or a file descriptor is a different claim from a path.
+  const provenanceReal = typeof claimedFile === 'string' && existsSync(claimedFile);
+  const gateBacked = typeof claimedGateCompanion === 'string' && existsSync(claimedGateCompanion);
+  const crossReferenced = typeof claimedCrossRefFile === 'string' && readsAs(claimedCrossRefFile, claimedCrossRefPhrase);
   const passed = [provenanceReal, gateBacked, crossReferenced].filter(Boolean).length;
   return {
     provenanceReal, gateBacked, crossReferenced,

@@ -215,3 +215,15 @@ test('fuzz: garbage input to write/read/history never throws, and never produces
     assert.equal(r.ok, false);
   }
 });
+
+test('read() says WHY it refused: a bad key or a bad source is named as such, not passed off as a miss', () => {
+  // These two guards used to be baselined as "equivalent": a mutation that bypassed them fell through to the
+  // miss path, and the {ok:false} looked the same. The reason does not look the same, and a caller who is
+  // told "no fact yet" for a malformed key goes looking for data that was never the problem.
+  const c = createCrystal();
+  c.write('k', 1, 'src', 5);
+  for (const bad of ['', 5, null, undefined]) assert.deepEqual(c.read(bad), { ok: false, why: 'key must be a non-empty string' });
+  for (const bad of ['', 7, null]) assert.deepEqual(c.read('k', bad), { ok: false, why: 'source must be a non-empty string when given' });
+  assert.deepEqual(c.read('k', 'other'), { ok: false, why: 'no fact recorded for that key from that source' });
+  assert.deepEqual(c.read('nope'), { ok: false, why: 'no fact recorded for that key' });
+});

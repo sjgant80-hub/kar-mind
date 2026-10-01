@@ -5,7 +5,7 @@
 import { mkdtempSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createMind, verifyManifest, SOLIDS } from './mind.mjs';
+import { createMind, verifyManifest, SOLIDS } from '../mind.mjs';
 
 const line = (s = '') => console.log(s);
 const tmp = mkdtempSync(join(tmpdir(), 'mind-demo-'));

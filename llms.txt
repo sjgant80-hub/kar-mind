@@ -34,7 +34,7 @@ irreversible outside-world action, by construction.
 
 ## Run
 - Clone the three sibling organs (fall-remember, the-dreamer, fallforgecell) next to kar-mind, then:
-  `node mind-autonomous-demo.mjs` (boot, run the loop, persist, restart from disk with state intact)
+  `node examples/mind-autonomous-demo.mjs` (boot, run the loop, persist, restart from disk with state intact)
 - `node --test` runs the full gate suite. Requires Node 18+; no dependencies.
 
 ## Credits

@@ -22,7 +22,8 @@ import { adjudicate } from '../fallforgecell/kernel.mjs';
 // or a field is contested, that is reported exactly as Veridia itself reports it.
 export function verifyBeforePromote({ crystal, key }) {
   if (!crystal || typeof crystal.history !== 'function') return { ok: false, why: 'crystal must be a live crystal instance' };
-  if (typeof key !== 'string' || !key) return { ok: false, why: 'key must be a non-empty string' };
+  // the key is checked by crystal.history() itself, with this exact refusal — a second copy of that guard
+  // here was a mutant no test could tell apart, because both refuse with the same words.
   const h = crystal.history(key);
   if (!h.ok) return { ok: false, why: h.why };
   if (h.facts.length < 3) return { ok: false, why: `Veridia needs at least 3 independent claims to cross-check — only ${h.facts.length} recorded for this key` };

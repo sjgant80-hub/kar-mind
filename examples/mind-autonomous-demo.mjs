@@ -6,8 +6,8 @@
 import { mkdtempSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { bootMind, runAutonomous } from './mind-persistent.mjs';
-import { queueSource } from './run-loop.mjs';
+import { bootMind, runAutonomous } from '../mind-persistent.mjs';
+import { queueSource } from '../run-loop.mjs';
 
 const line = (s = '') => console.log(s);
 const dir = mkdtempSync(join(tmpdir(), 'mind-live-'));
