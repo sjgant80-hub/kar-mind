@@ -49,6 +49,8 @@ jobs:
           # the seed's codec (2026-10-01): its seal, and its counts re-graded (the workload stays private)
           if [ -f data/codec-prereg.json ]; then node tools/codec-measure.mjs --check; fi
           if [ -f data/codec-run.json ]; then node tools/codec-measure.mjs --verify; fi
+          # the digest re-laid (2026-10-05): replies re-graded (the seal's --check needs the local pinned prompt, so it runs locally)
+          if [ -f data/layout-run.json ]; then node tools/layout-measure.mjs --verify; fi
           node tools/build-page.mjs
           git diff --exit-code -- index.html README.md || { echo "the page is stale: run node tools/build-page.mjs and commit"; exit 1; }
 
@@ -86,3 +88,5 @@ jobs:
           grep -q '"clean": true' watch.out || { echo "::error::mutants survived in watch.mjs"; exit 1; }
           node ../witness/witness.mjs mutate seedcodec.mjs --timeout 60000 --test node --test seedcodec.test.mjs | tee codec.out
           grep -q '"clean": true' codec.out || { echo "::error::mutants survived in seedcodec.mjs"; exit 1; }
+          node ../witness/witness.mjs mutate layout.mjs --timeout 60000 --test node --test layout.test.mjs | tee layout.out
+          grep -q '"clean": true' layout.out || { echo "::error::mutants survived in layout.mjs"; exit 1; }

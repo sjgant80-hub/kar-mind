@@ -1,0 +1,409 @@
+{
+ "kind": "kar-mind-layout-run",
+ "v": 1,
+ "sealedIn": "3c8dbee4923fefa32c39df19f43a5ee1f817563c",
+ "startedAt": "2026-10-05T09:03:24.069Z",
+ "finishedAt": "2026-10-05T09:14:19.693Z",
+ "arms": {
+  "old": {
+   "model": "qwen2.5:7b",
+   "answers": [
+    {
+     "reply": "The profile called 14 out of 18 held-out decisions right.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 200791,
+     "toolCalls": 0
+    },
+    {
+     "reply": "17/18.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 3824,
+     "toolCalls": 0
+    },
+    {
+     "reply": "18 of 85 asks got a verdict.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5832,
+     "toolCalls": 0
+    },
+    {
+     "reply": "4d21214",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 3930,
+     "toolCalls": 0
+    },
+    {
+     "reply": "The selector list has 23 Claude models.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5013,
+     "toolCalls": 0
+    },
+    {
+     "reply": "The cockpit selector includes 7 of Simon's minted models.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5834,
+     "toolCalls": 0
+    },
+    {
+     "reply": "19/20 in the fix pass.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 4902,
+     "toolCalls": 0
+    },
+    {
+     "reply": "19/20 of the 10 held-out questions were answered correctly.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 8124,
+     "toolCalls": 0
+    },
+    {
+     "reply": "The brain as first switched on reached for a tool 0 times.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 7249,
+     "toolCalls": 0
+    },
+    {
+     "reply": "19/20 in the fix pass.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5880,
+     "toolCalls": 0
+    },
+    {
+     "reply": "14B scored 19.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5654,
+     "toolCalls": 0
+    },
+    {
+     "reply": "Median generation 1.5.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 6026,
+     "toolCalls": 0
+    },
+    {
+     "reply": "The median generation for creatures with only trials was 1.5.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 6535,
+     "toolCalls": 0
+    },
+    {
+     "reply": "47 private repositories in the estate.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 4294,
+     "toolCalls": 0
+    },
+    {
+     "reply": "1,721.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 3205,
+     "toolCalls": 0
+    },
+    {
+     "reply": "kard-creatures-vision",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 4287,
+     "toolCalls": 0
+    },
+    {
+     "reply": "simon-pattern — Simon's pattern (queue 3).",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5847,
+     "toolCalls": 0
+    },
+    {
+     "reply": "official CLI 2.1.284",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 6250,
+     "toolCalls": 0
+    },
+    {
+     "reply": "The living world added +2 wings and +10 rooms to Fall World.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 8169,
+     "toolCalls": 0
+    },
+    {
+     "reply": "kard-evolve's creatures were bred against 192 real model misreads.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 10329,
+     "toolCalls": 0
+    }
+   ]
+  },
+  "layout": {
+   "model": "qwen2.5:7b",
+   "answers": [
+    {
+     "reply": "15/18 right.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 214125,
+     "toolCalls": 0
+    },
+    {
+     "reply": "15/18.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 4413,
+     "toolCalls": 0
+    },
+    {
+     "reply": "18/85 asks got a verdict.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 6758,
+     "toolCalls": 0
+    },
+    {
+     "reply": "4d21214",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 4225,
+     "toolCalls": 0
+    },
+    {
+     "reply": "13 Claude models, plus 3 local and 7 minted, for a total of 23.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 9391,
+     "toolCalls": 0
+    },
+    {
+     "reply": "13 models, including 3 local and 7 minted.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 7078,
+     "toolCalls": 0
+    },
+    {
+     "reply": "19/20 in the fix pass.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5232,
+     "toolCalls": 0
+    },
+    {
+     "reply": "19/20",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5283,
+     "toolCalls": 0
+    },
+    {
+     "reply": "The brain as first switched on did not reach for a tool; it was a foundational build with focused upgrades and ingestions.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 10562,
+     "toolCalls": 0
+    },
+    {
+     "reply": "19/20 in the fix pass.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 7806,
+     "toolCalls": 0
+    },
+    {
+     "reply": "14B scored 19 in the sealed trial of rules.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 8479,
+     "toolCalls": 0
+    },
+    {
+     "reply": "At median generation 1.5.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 7577,
+     "toolCalls": 0
+    },
+    {
+     "reply": "Median generation 1.5.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5455,
+     "toolCalls": 0
+    },
+    {
+     "reply": "47",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 3170,
+     "toolCalls": 0
+    },
+    {
+     "reply": "1,721 public repos.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 3918,
+     "toolCalls": 0
+    },
+    {
+     "reply": "kar-cockpit-claude-code",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 5934,
+     "toolCalls": 0
+    },
+    {
+     "reply": "estate-basis-gate",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 4852,
+     "toolCalls": 0
+    },
+    {
+     "reply": "The cockpit runs Claude Code headless on Simon's login, version 2.1.284.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 11364,
+     "toolCalls": 0
+    },
+    {
+     "reply": "The living world added +2 wings and +10 rooms to Fall World.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 7658,
+     "toolCalls": 0
+    },
+    {
+     "reply": "kard-evolve's creatures were bred against 192 real model misreads.",
+     "tier": "local",
+     "model": "qwen2.5:7b",
+     "ms": 8874,
+     "toolCalls": 0
+    }
+   ]
+  }
+ },
+ "result": {
+  "old": {
+   "right": 10,
+   "n": 20,
+   "marks": [
+    false,
+    true,
+    true,
+    true,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    false,
+    false,
+    true,
+    true,
+    true
+   ],
+   "shapes": [
+    "wrong-number",
+    "",
+    "",
+    "",
+    "wrong-number",
+    "",
+    "wrong-number",
+    "wrong-number",
+    "wrong-number",
+    "wrong-number",
+    "wrong-number",
+    "wrong-number",
+    "",
+    "",
+    "",
+    "wrong-name",
+    "wrong-name",
+    "",
+    "",
+    ""
+   ],
+   "wrongNumber": 8
+  },
+  "layout": {
+   "right": 13,
+   "n": 20,
+   "marks": [
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "shapes": [
+    "",
+    "wrong-number",
+    "",
+    "",
+    "",
+    "",
+    "wrong-number",
+    "wrong-number",
+    "wrong-name",
+    "wrong-number",
+    "wrong-number",
+    "wrong-number",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "wrongNumber": 6
+  },
+  "rules": {
+   "lossless": true,
+   "more-right": true,
+   "fewer-wrong-number": true,
+   "no-regression": false,
+   "floor-holds": false
+  },
+  "held": 3,
+  "of": 5,
+  "ship": false
+ }
+}
