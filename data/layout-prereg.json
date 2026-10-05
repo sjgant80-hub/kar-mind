@@ -1,0 +1,138 @@
+{
+ "kind": "kar-mind-layout-prereg",
+ "v": 1,
+ "question": "If the digest Kar's direct line reads is re-laid so each fact sits on its own labelled line and the build list names newest, oldest and order, does his 7B answer more of the same questions right?",
+ "why": "The watch (sealed cd4913b) found the misses are reading misses on crowded lines, and a playbook rule telling the model to read carefully did not cut them (11 repeats with it vs 10 without). This changes the input, not the instructions.",
+ "design": {
+  "arms": {
+   "old": "the pinned system prompt exactly as the watch ran it",
+   "layout": "the same prompt with only its digest re-laid by layout.mjs"
+  },
+  "sameIn": "both arms: the frozen watch route, greedy decoding, the brain pinned, no playbook, the 20 held-out questions of the watch, \"Answer in one short line.\"",
+  "layout": "layout.mjs relayout(): the ESTATE line and every recent build split into one clause per line at dashes, semicolons, middle dots, colons, commas, pluses, \"but\", \"vs\" and parentheses; the builds numbered #1 newest to #N oldest, each naming the build just before it. Nothing added that the digest did not say.",
+  "systemSha256": "f51ca2b315900ff926eb7148d99685133fb65665f04d3d3b67afff3ec6eebe51",
+  "laidSha256": "b4186b46e56ec1fb4ef897c8a2a66a9d611eb921344578f81b4aa7c8a72b6e2a",
+  "frozenSha256": "5f2117d48f3fe305aee64dbc55948e00f8acd03ebd494548490f7217511ec7b0",
+  "chars": {
+   "old": 10690,
+   "layout": 11404
+  },
+  "factsLost": []
+ },
+ "heldOut": [
+  {
+   "q": "In Simon's pattern, how many of the 18 held-out decisions did the profile call right?",
+   "expect": "\\b15\\b"
+  },
+  {
+   "q": "In Simon's pattern, how many of the 18 would always saying go have called right?",
+   "expect": "\\b17\\b"
+  },
+  {
+   "q": "In Simon's pattern, of the 85 held-out asks, how many got a verdict from Simon?",
+   "expect": "\\b18\\b"
+  },
+  {
+   "q": "Which commit sealed Simon's pattern?",
+   "expect": "4d21214"
+  },
+  {
+   "q": "How many Claude models does the cockpit's selector list?",
+   "expect": "\\b13\\b"
+  },
+  {
+   "q": "How many of Simon's minted models are on the cockpit's selector?",
+   "expect": "\\b7\\b"
+  },
+  {
+   "q": "How many sealed rules held in the brain's fix pass?",
+   "expect": "\\b4\\s*(\\/|of|out of)\\s*5\\b"
+  },
+  {
+   "q": "In the brain's fix pass, how many of the 10 held-out questions did it get right?",
+   "expect": "\\b8\\b"
+  },
+  {
+   "q": "In the fix pass, how many times did the brain as first switched on reach for a tool?",
+   "expect": "\\b5\\b"
+  },
+  {
+   "q": "In the fix pass, how many of the 30 questions did the brain as first switched on get right?",
+   "expect": "\\b17\\b"
+  },
+  {
+   "q": "In Fall World's sealed trial of rules, which model scored 19 besides the 7B?",
+   "expect": "\\b1\\s?B\\b"
+  },
+  {
+   "q": "In kard-evolve's second experiment, at what median generation did the self-scoring creatures find U to V?",
+   "expect": "(?:^|[^\\d.])1(?![\\d.])"
+  },
+  {
+   "q": "In that experiment, at what median generation did the creatures that only had trials find it?",
+   "expect": "\\b1\\.5\\b"
+  },
+  {
+   "q": "How many repositories in the estate are private?",
+   "expect": "\\b47\\b"
+  },
+  {
+   "q": "How many repositories in the estate are public?",
+   "expect": "\\b1,?721\\b"
+  },
+  {
+   "q": "Which build did I finish just before Simon's pattern?",
+   "expect": "cockpit"
+  },
+  {
+   "q": "What is the oldest build listed in my recent builds?",
+   "expect": "estate-basis-gate|basis"
+  },
+  {
+   "q": "Which version of Claude Code does the cockpit run?",
+   "expect": "2\\.1\\.284"
+  },
+  {
+   "q": "How many wings and how many rooms did the living world add to Fall World?",
+   "expect": "\\b2\\b[\\s\\S]{0,40}\\b10\\b"
+  },
+  {
+   "q": "Against how many real model misreads were kard-evolve's creatures bred?",
+   "expect": "\\b192\\b"
+  }
+ ],
+ "rules": [
+  {
+   "id": "lossless",
+   "rule": "every fact token of the old prompt is still in the re-laid one (decided at seal)"
+  },
+  {
+   "id": "more-right",
+   "rule": "the layout arm answers at least 2 more of the 20 right than the old arm"
+  },
+  {
+   "id": "fewer-wrong-number",
+   "rule": "the layout arm has at least 2 fewer wrong-number misses than the old arm"
+  },
+  {
+   "id": "no-regression",
+   "rule": "every question the old arm answers right, the layout arm answers right"
+  },
+  {
+   "id": "floor-holds",
+   "rule": "the old arm gives exactly the replies the watch's without-arm gave (greedy is greedy — else the noise floor is not zero)"
+  }
+ ],
+ "shipRule": "the live digest switches to the new layout only if more-right AND no-regression both pass; otherwise the finding is recorded and the live digest stays as it is",
+ "predictions": {
+  "lossless": "pass (checked at seal)",
+  "more-right": "unsure — the reading misses are the layout's target, but some clauses lose their label when split (\"1 of 4\" on its own line)",
+  "fewer-wrong-number": "pass, leaning — 8 of the old arm's 10 misses are wrong-number",
+  "no-regression": "fail, likely — the prompt changes in 700 characters and greedy outputs move everywhere",
+  "floor-holds": "pass"
+ },
+ "honesty": [
+  "Kar saw these 20 questions when he wrote them for the watch, and before he wrote layout.mjs. The layout was not tuned against them: it was written from the miss SHAPES the watch named, and sealed on first output without a dry run on the questions.",
+  "One run of 20 questions on one 7B is a small test: a difference of one or two answers can be noise in what the changed text does to the model."
+ ]
+}
