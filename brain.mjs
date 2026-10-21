@@ -57,7 +57,9 @@ export function indexLines(text) {
   if (at >= 0) {
     for (const l of lines.slice(at + 1)) {
       if (!/^- /.test(l)) break;
-      const m = /^- \[([^\]]+)\]\([^)]*\)\s*—\s*(.*)$/.exec(l);
+      // a build may carry ⚑ marks before its link (the newest, most important ones do): read past them, or the digest goes
+      // blind to exactly the builds that matter most (found 2026-10-22: every flagged build was skipped)
+      const m = /^- (?:⚑+\s*)?\[([^\]]+)\]\([^)]*\)\s*—\s*(.*)$/.exec(l);
       if (m) recent.push({ name: m[1], text: plain(m[2]) });
     }
   }

@@ -60,6 +60,9 @@ test('indexLines finds the estate line and the recent builds, links flattened', 
   assert.deepEqual(indexLines('nothing here'), { estate: null, recent: [] });
   assert.deepEqual(indexLines('**Recent builds**\n- [a](a.md) — first line'), { estate: null, recent: [{ name: 'a', text: 'first line' }] });
   assert.deepEqual(indexLines('**Recent builds**\nplain'), { estate: null, recent: [] });
+  // the flagged builds — the newest and most important — are read, marks and all, in the index's own order
+  assert.deepEqual(indexLines('**Recent builds**\n- ⚑⚑⚑ [one-world](one-world.md) — ONE WORLD: phase 1 SHIPPED\n- ⚑ [b](b.md) — one mark\n- ⚑⚑[c](c.md) — no space\n- [d](d.md) — none\n- ⚑ SOVEREIGN STACK: [s](s.md) · [t](t.md)'),
+    { estate: null, recent: [{ name: 'one-world', text: 'ONE WORLD: phase 1 SHIPPED' }, { name: 'b', text: 'one mark' }, { name: 'c', text: 'no space' }, { name: 'd', text: 'none' }] });
   assert.deepEqual(indexLines(null), { estate: null, recent: [] });
 });
 
