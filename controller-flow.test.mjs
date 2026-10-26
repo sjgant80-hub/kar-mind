@@ -32,6 +32,26 @@ test('frontier when the budget fits and it answers; the ceiling is saved as spen
   assert.equal((await nightIdea({ ...deps, save: undefined })).tier, 'frontier', 'no save given still works');
 });
 
+test('a call that ran past its ceiling is charged the overrun, and the night is shut when the books are full', async () => {
+  const { saved, deps } = base();
+  const over = (n) => async () => ({ ok: true, structured: idea, tokens: n, model: 'claude-opus-4-8', turns: 1, denials: 0 });
+  const r = await nightIdea({ ...deps, think: over(35000) });
+  assert.equal(r.state.wallet.budget.spent, 35000);
+  assert.deepEqual(saved, [30000, 35000], 'the ceiling before the call, the overrun after');
+  assert.equal(r.tokens, 35000);
+  const exact = base();
+  await nightIdea({ ...exact.deps, think: over(30000) });
+  assert.deepEqual(exact.saved, [30000], 'a call that used its whole ceiling owes nothing more');
+  const big = await nightIdea({ ...deps, think: over(95000) });
+  assert.equal(big.state.wallet.budget.spent, 95000);
+  const after = await nightIdea({ ...deps, state: big.state, think: over(1) });
+  assert.deepEqual([after.tier, after.fallback], ['local', true], 'the books are full: the local model');
+  const huge = await nightIdea({ ...deps, think: over(250000) });
+  assert.equal(huge.state.wallet.budget.spent, 250000, 'the books say what it used, even past the budget');
+  assert.equal((await nightIdea({ ...deps, state: huge.state, think: over(1) })).tier, 'local');
+  assert.equal((await nightIdea({ ...deps, think: over(35000), save: undefined })).state.wallet.budget.spent, 35000, 'no save given still charges');
+});
+
 test('the frontier does not answer: the local model makes the idea, and the record says why', async () => {
   const { deps } = base();
   const down = await nightIdea({ ...deps, think: async () => ({ ok: false, why: 'no claude CLI on this machine' }) });

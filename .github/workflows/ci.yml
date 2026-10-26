@@ -93,5 +93,5 @@ jobs:
           grep -q '"clean": true' codec.out || { echo "::error::mutants survived in seedcodec.mjs"; exit 1; }
           node ../witness/witness.mjs mutate layout.mjs --timeout 60000 --test node --test layout.test.mjs | tee layout.out
           grep -q '"clean": true' layout.out || { echo "::error::mutants survived in layout.mjs"; exit 1; }
-          node ../witness/witness.mjs mutate controller.mjs --timeout 60000 --test node --test controller.test.mjs controller-flow.test.mjs | tee controller.out
+          node ../witness/witness.mjs mutate controller.mjs --cap 1000 --timeout 60000 --test node --test controller.test.mjs controller-flow.test.mjs | tee controller.out
           grep -q '"clean": true' controller.out || { echo "::error::mutants survived in controller.mjs"; exit 1; }

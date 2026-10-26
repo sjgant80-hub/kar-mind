@@ -13,6 +13,7 @@ import { cortexArgs, readReply } from '../controller.mjs';
 
 export const MODEL = process.env.KAR_CORTEX_MODEL || 'claude-opus-4-8';   // the newest the installed CLI serves on the login
 const OAUTH = join(homedir(), '.si-didy', 'kar-oauth.token');
+export const OUTPUT_CAP = 4000;
 
 async function kit() {
   const S = await import(pathToFileURL('C:/Users/sjgan/si-didy/claude-session.mjs').href);
@@ -33,6 +34,8 @@ export async function think(opts) {
   const cwd = mkdtempSync('C:\\tmp\\kar-cortex\\think-');
   const env = K.cleanEnv(process.env);
   try { const t = readFileSync(OAUTH, 'utf8').trim(); if (t) env.CLAUDE_CODE_OAUTH_TOKEN = t; } catch { /* the CLI's own stored login, then */ }
+  // the reply is one small JSON object: its output is capped, so with the bounded prompt a call stays far under its ceiling
+  env.CLAUDE_CODE_MAX_OUTPUT_TOKENS = String(OUTPUT_CAP);
   const t0 = Date.now();
   return new Promise((done) => {
     let out = '', err = '', settled = false;

@@ -1,0 +1,11 @@
+{
+ "kind": "kar-mind-cost-sources",
+ "note": "The vendor's own published list, read from the page itself (the page shows no date of its own; the date here is when it was read). Their prices, never ours: the controller's cost case prices the frontier model it measured, every token at the list's dearest rate, so its figures are an upper bound.",
+ "frontier": {
+  "model": "claude-opus-4-8",
+  "listedAs": "Opus 4.8",
+  "usdPerMTok": { "input": 5, "output": 25, "cacheWrite": 6.25, "cacheRead": 0.5 },
+  "source": "https://claude.com/pricing",
+  "read": "2026-10-26"
+ }
+}

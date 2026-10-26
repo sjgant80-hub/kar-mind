@@ -38,6 +38,8 @@
     { "@type": "Question", "name": "Does kar-mind use an LLM as a judge?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every check is deterministic and re-runnable — cross-source verification, recall scoring, and the output verifier are all code, with no model-in-the-loop scoring." } },
     { "@type": "Question", "name": "How does it survive a restart?", "acceptedAnswer": { "@type": "Answer", "text": "Cognition is event-sourced: every state-changing verb records its cause, and the log is sealed to disk with real gzip and a receipt hash over every field, tamper-refused on load. On boot the organs replay the log and reach identical counts — a write-ahead-log persistence architecture." } },
     { "@type": "Question", "name": "Can the autonomous loop publish or spend on its own?", "acceptedAnswer": { "@type": "Answer", "text": "No. The run-loop imports no path to any irreversible outside-world action — there is no publish verb and no spend verb reachable from it, by construction. The export door itself is doubly gated by a consent id and a path wall, and a test proves a full autonomous run stages no export and writes no file." } },
+    { "@type": "Question", "name": "What is Kar's controller?", "acceptedAnswer": { "@type": "Answer", "text": "One rule for every job an AI estate does: a job an organ already does runs as code with no model, a narrow wording job goes to a small local model, and judgement goes to Claude on the owner's own login, through the official client with no tools, no servers and nothing saved. It was measured against seven claims sealed before it was written." } },
+    { "@type": "Question", "name": "Can the controller's frontier bill run away?", "acceptedAnswer": { "@type": "Answer", "text": "No. A frontier call is made only if its whole token ceiling still fits in the night's budget, and the ceiling is counted as spent before the call goes out; a call that used more is charged the difference, and once the books are full nothing more is sent until the next night. When the frontier is refused or unreachable, the local model does the job and the record says so." } },
     { "@type": "Question", "name": "What does switching the brain on mean?", "acceptedAnswer": { "@type": "Answer", "text": "The organs are joined into one loop: every session start writes what changed in the agent's memory, asks and build queue into the persistent journal and starts from the digest it reads back; the owner's direct line reads the same brain on every message; and the next build comes from the owner's approved queue, while money, publishing and standing switches stay the owner's decisions." } },
     { "@type": "Question", "name": "How do I run it?", "acceptedAnswer": { "@type": "Answer", "text": "Clone the three public sibling organs (fall-remember, the-dreamer, fallforgecell) next to kar-mind, then run `node examples/mind-autonomous-demo.mjs`. Requires Node 18+ and has no dependencies." } }
   ]
@@ -85,6 +87,34 @@ table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 th { text-align: left; color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); }
 td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
 td:nth-child(2), td:nth-child(3) { white-space: nowrap; }
+table.wide td { white-space: normal; }
+.start { font-size: .9rem; color: var(--muted); margin: -16px 0 24px; }
+.demo { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 14px; margin: 12px 0 18px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+.row input { flex: 1 1 220px; min-width: 0; }
+input { font: inherit; color: var(--fg); background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; }
+button { font: inherit; cursor: pointer; border-radius: 6px; padding: 8px 14px; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); }
+button.ghost { background: transparent; color: var(--accent); }
+.chip { font-size: .82rem; padding: 4px 10px; border-radius: 999px; margin: 6px 6px 0 0; border: 1px solid var(--line); background: transparent; color: var(--fg); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.out { margin: 10px 0 0; min-height: 1.6em; }
+.out p { margin: 0 0 6px; }
+.tier { display: inline-block; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--accent); color: var(--accent); margin-right: 8px; }
+.bar { height: 10px; border-radius: 5px; background: var(--code-bg); overflow: hidden; }
+.bar span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.log { margin: 8px 0 0; font-size: .9rem; }
+.log .refused { color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.grid label { display: flex; flex-direction: column; font-size: .82rem; color: var(--muted); gap: 4px; }
+.diagram { width: 100%; min-width: 460px; height: auto; margin: 8px 0 12px; display: block; }
+.d-box { fill: var(--card); stroke: var(--line); stroke-width: 1.5; }
+.d-acc { stroke: var(--accent); }
+.d-line { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.d-dash { stroke-dasharray: 5 4; }
+.d-head { fill: var(--muted); }
+.d-t { fill: var(--fg); font-size: 15px; text-anchor: middle; }
+.d-b { font-weight: 600; }
+.d-s { fill: var(--muted); font-size: 12.5px; text-anchor: middle; }
 </style>
 </head>
 <body>
@@ -94,7 +124,191 @@ td:nth-child(2), td:nth-child(3) { white-space: nowrap; }
   <p class="tagline">A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system — and structurally cannot publish or spend.</p>
 </header>
 
-<section class="on">
+<nav class="start" aria-label="On this page"><b>On this page:</b> <a href="#controller">the controller</a> (new: try it below) · <a href="#brain">the brain, switched on</a> · <a href="#organs">the organs</a> · <a href="#run">run it</a></nav>
+
+<section class="on" id="controller">
+<h2 style="margin-top:0">Kar the controller: own the body, call the cortex</h2>
+<p><b>What it is.</b> One rule for every job an AI estate does: send it to the cheapest mind that can do it right.
+A job an organ already does (run a gate, pack the memory, re-run a census) runs as code, with no model at all. A narrow
+wording job (summarise, tag, draft a short line) goes to the small model on this laptop. Judgement (propose, decide,
+review, design) goes to Claude, on the owner's own login. A nightly wall caps what the frontier may spend, checked before
+every call. When the frontier cannot be reached, the local model does the job and the record says so.</p>
+
+<h3>Start here</h3>
+<ol>
+  <li><b>Route a job.</b> Type any job in plain words, or pick one, and press Route. This is the real controller
+  (<code>controller.mjs</code>, the same file the gate tests), running in your browser.</li>
+  <li><b>Hit the wall.</b> Ask for frontier calls against one night's budget and watch the fourth be refused before it is made.</li>
+  <li><b>Price your own mix.</b> Further down, put in how many jobs you run a month and how they split; the controller's own
+  cost function prices them at the vendor's published list.</li>
+</ol>
+
+<div class="demo" id="route-demo">
+  <label for="job"><b>1 · A job, in plain words</b></label>
+  <div class="row"><input id="job" type="text" value="propose tonight's build idea" autocomplete="off" spellcheck="false"><button id="route-btn" type="button">Route</button></div>
+  <div class="chips" aria-label="Example jobs">
+    <button type="button" class="chip">run the witness gate on light/codec.mjs</button>
+    <button type="button" class="chip">summarise last night's ledger in two lines</button>
+    <button type="button" class="chip">design the signalling step for the two-laptop mesh</button>
+    <button type="button" class="chip">frobnicate the build cache</button>
+  </div>
+  <p id="route-out" class="out" aria-live="polite"></p>
+</div>
+
+<div class="demo" id="wall-demo">
+  <p style="margin:0 0 8px"><b>2 · One night's wall.</b> Budget <b>100,000</b> tokens; each frontier call reserves its whole ceiling of <b>30,000</b> before it is made.</p>
+  <div class="bar" role="img" aria-label="Tonight's frontier budget, spent and left"><span id="wall-bar"></span></div>
+  <p id="wall-left" class="muted" style="margin:6px 0 10px"></p>
+  <div class="row"><button id="ask-btn" type="button">Ask for a frontier call</button><button id="night-btn" type="button" class="ghost">Next night</button></div>
+  <ol id="wall-log" class="log" aria-live="polite"></ol>
+</div>
+
+<h3>How it works</h3>
+<div class="scroll"><svg class="diagram" viewBox="0 0 520 430" role="img" aria-labelledby="d-title">
+  <title id="d-title">A job's first verb picks its tier; judgement passes the night's wall before it reaches Claude, else it goes to the local model, marked as a fallback</title>
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-head"/></marker></defs>
+  <rect x="160" y="8" width="200" height="44" rx="8" class="d-box"/><text x="260" y="35" class="d-t">a job, in plain words</text>
+  <line x1="260" y1="52" x2="260" y2="80" class="d-line" marker-end="url(#arr)"/>
+  <rect x="160" y="82" width="200" height="44" rx="8" class="d-box d-acc"/><text x="260" y="109" class="d-t"><tspan class="d-b">its first verb</tspan></text>
+  <path d="M200 126 L90 168" class="d-line" marker-end="url(#arr)"/><path d="M260 126 L260 168" class="d-line" marker-end="url(#arr)"/><path d="M320 126 L430 168" class="d-line" marker-end="url(#arr)"/>
+  <text x="112" y="148" class="d-s">run, check, pack…</text><text x="268" y="152" class="d-s" style="text-anchor:start">summarise, tag…</text><text x="408" y="148" class="d-s">propose, design… or unknown</text>
+  <rect x="10" y="170" width="160" height="62" rx="8" class="d-box"/><text x="90" y="196" class="d-t d-b">an organ runs it</text><text x="90" y="216" class="d-s">code, no model, no cost</text>
+  <rect x="180" y="170" width="160" height="62" rx="8" class="d-box"/><text x="260" y="196" class="d-t d-b">the local model</text><text x="260" y="216" class="d-s">on this laptop</text>
+  <rect x="350" y="170" width="160" height="62" rx="8" class="d-box d-acc"/><text x="430" y="196" class="d-t d-b">the night's wall</text><text x="430" y="216" class="d-s">does the whole ceiling fit?</text>
+  <line x1="430" y1="232" x2="430" y2="300" class="d-line" marker-end="url(#arr)"/><text x="438" y="270" class="d-s" style="text-anchor:start">yes: spent first</text>
+  <path d="M372 232 C372 262 300 262 290 234" class="d-line" marker-end="url(#arr)"/><text x="300" y="276" class="d-s">no: marked a fallback</text>
+  <rect x="330" y="302" width="180" height="70" rx="8" class="d-box"/><text x="420" y="326" class="d-t d-b">Claude, your login</text><text x="420" y="346" class="d-s">no tools · no servers</text><text x="420" y="362" class="d-s">nothing saved · output capped</text>
+  <path d="M330 350 C250 350 250 300 250 236" class="d-line d-dash" marker-end="url(#arr)"/><text x="190" y="330" class="d-s">no answer: the local model,</text><text x="190" y="346" class="d-s">marked a fallback, says why</text>
+  <rect x="10" y="384" width="500" height="38" rx="8" class="d-box"/><text x="260" y="408" class="d-s">every answer is recorded with its maker, its tier, its tokens and why</text>
+</svg></div>
+<ol>
+  <li><b>The first verb decides.</b> The controller reads the job's first word against three short lists: an organ's verbs
+  (run, check, pack, verify, measure, census…), wording verbs (summarise, tag, draft, rewrite…) and judgement verbs (propose,
+  decide, review, plan, design, diagnose…). A verb it does not know goes to the frontier while the night's budget allows
+  (Claude when unsure), and otherwise to the local model, marked as a fallback.</li>
+  <li><b>The wall is checked before the call.</b> A frontier call is made only if its whole ceiling still fits in tonight's
+  budget, and the ceiling is written down as spent <i>before</i> the call goes out, so a night that dies mid-call has still
+  counted it. A call that ever used more than its ceiling is charged the difference afterwards, and once the books are full
+  nothing more goes out until the next night.</li>
+  <li><b>The frontier only thinks.</b> The call goes through the vendor's official command-line client, from an empty folder
+  so no project files ride along, with no tools, no servers, nothing saved, and its output capped at 4,000 tokens. It runs on
+  the owner's own login: the controller never holds an API key, and a call that has not answered in 240 seconds is cut.</li>
+  <li><b>The fallback says so.</b> If the frontier does not answer, the local model makes the answer and the record names it
+  as a fallback, with the reason. Nothing that did not come from the frontier is ever marked as the frontier's.</li>
+  <li><b>Every night, without being asked.</b> Kar's nightly loop on the owner's laptop asks the controller for one build idea
+  from the two things its dream graph found together most often. The idea, its maker, its tokens and its five checks land in
+  the morning report.</li>
+</ol>
+
+<h3>The sealed measurement</h3>
+<p>Seven claims were written down and committed before <code>controller.mjs</code> existed, then measured on the live wires:
+Claude on the owner's login against the local 7B, on the same six pairs, with the same prompt, graded by the same five checks.
+An idea passes when it has the asked-for shape, names only real repos (one of them from the pair), uses plain words, has a first
+step that names one of the two, and is not a repeat of another idea in the run.</p>
+<!-- ⟦CONTROLLER-BEGIN⟧ generated by build-page.mjs -->
+<p class="muted">Sealed before the controller existed (<code>data/controller-prereg.json</code>): 7 claims. Being measured; the result lands here whichever way it goes.</p><script type="application/json" id="controller-data">{"tokens":[],"mix":{"deterministic":10,"local":10,"frontier":10},"price":{"model":"claude-opus-4-8","listedAs":"Opus 4.8","usdPerMTok":{"input":5,"output":25,"cacheWrite":6.25,"cacheRead":0.5},"source":"https://claude.com/pricing","read":"2026-10-26"}}</script>
+<!-- ⟦CONTROLLER-END⟧ -->
+
+<h3>Price your own mix</h3>
+<div class="demo" id="cost-demo">
+  <p style="margin:0 0 8px"><b>3 · Your jobs.</b> How many AI jobs a month, and how a typical set of them splits. The split starts at the sealed thirty.</p>
+  <div class="grid">
+    <label>jobs a month<input id="c-jobs" type="number" min="1" step="1" value="1000"></label>
+    <label>organ jobs<input id="c-det" type="number" min="0" step="1"></label>
+    <label>wording jobs<input id="c-loc" type="number" min="0" step="1"></label>
+    <label>judgement jobs<input id="c-fro" type="number" min="0" step="1"></label>
+  </div>
+  <div id="cost-out" class="out" aria-live="polite"></div>
+</div>
+<p class="muted">How it is priced: each job is costed at what one measured frontier call cost, and every token at the
+dearest rate on the vendor's own list, so every figure is an upper bound. The local model runs on hardware already owned
+and is not costed. The prices are the vendor's, read from their page on the date shown; they are never ours.</p>
+
+<h3>The blueprint</h3>
+<ul>
+  <li><b><code>controller.mjs</code></b>, the law: routing, the nightly wallet, the idea's prompt and its five checks, and
+  the cost case. Pure and deterministic; it decides and spends nothing. Witness-gated: every mutant of it is caught by its tests.</li>
+  <li><b><code>tools/cortex.mjs</code></b>, the frontier wire: one call through the official client, from an empty folder,
+  with the environment cleaned of keys and proxies.</li>
+  <li><b>The local wire</b> picks the biggest local model that fits in free memory, and refuses one that does not, because
+  loaded anyway it pages to disk and crawls.</li>
+  <li><b>The wallet</b> is the estate's shared foundation (<a href="https://sjgant80-hub.github.io/fall-kit/core/">fall-kit/core</a>),
+  vendored verbatim with every file pinned by SHA-256 and checked on every push.</li>
+  <li><b><code>tools/controller-measure.mjs</code></b>, the sealed measurement: <code>--check</code> (the seal is the committed
+  file), <code>--run</code> (only on committed, pushed code), <code>--verify</code> (re-grade every stored reply; CI runs it).</li>
+  <li><b>Kar's nightly loop</b>, on the owner's laptop, calls the controller once a night and saves the wallet before each call.</li>
+</ul>
+
+<h3>What it does for a business</h3>
+<p>Most teams wire AI one way: every job goes to one big rented model, or every job goes to one small one. The first pays
+frontier prices for work a script or a small model does as well. The second asks a small model for judgement it cannot give,
+and the sealed measurement above shows how much worse it does. The controller is the switchboard between them, with a ceiling
+the bill cannot pass.</p>
+<div class="scroll"><table class="wide"><thead><tr><th>who</th><th>what they get</th></tr></thead><tbody>
+<tr><td>CEO</td><td>The strongest model on the decisions that matter, the cheapest route everywhere else, and a bill that cannot run away.</td></tr>
+<tr><td>CFO</td><td>A hard nightly ceiling on frontier tokens, counted before each call; a cost case priced from the vendor's own list as an upper bound; jobs that need no model cost nothing.</td></tr>
+<tr><td>CTO / CISO</td><td>The frontier gets no tools, no servers and no files, and nothing is saved. The controller holds no API key. Organ and wording jobs never leave the machine. The routing rule is a few lines of tested code, not a model's guess.</td></tr>
+<tr><td>COO</td><td>Overnight work runs without a person relaying it. When the frontier is down the work still gets done locally, and the record says so.</td></tr>
+<tr><td>The teams</td><td>Routine wording jobs answered on the laptop; judgement jobs answered by the frontier; every answer says which mind made it.</td></tr>
+</tbody></table></div>
+
+<h3>Security and data protection</h3>
+<ul>
+  <li><b>What leaves the machine:</b> only the words of a judgement job, sent to the AI vendor the owner already uses, on the
+  owner's own account. Organ jobs and wording jobs stay on the machine.</li>
+  <li><b>Personal data:</b> the router decides by the verb, not by the content, so a judgement job that contains personal data
+  goes to the frontier. Keep personal data out of judgement jobs, or set the frontier budget to zero and everything stays
+  local (UK GDPR and GDPR: the controller decides what is sent, and the record shows what was).</li>
+  <li><b>Audit:</b> every nightly answer is appended to a ledger with its maker, its tier, its tokens and the reason for its
+  route. Nothing is rewritten.</li>
+  <li><b>Keys:</b> none stored by the controller. The client uses the owner's own login, and the environment is cleaned of
+  every key and proxy before each call.</li>
+</ul>
+
+<h3>Roll-out</h3>
+<ol>
+  <li><b>Week one:</b> run with a frontier budget of zero. Everything runs as code or on the local model, and the record shows where each job would have gone.</li>
+  <li><b>Week two:</b> set a nightly budget you are comfortable with. The wall holds it, call by call.</li>
+  <li><b>Then:</b> add your organs' verbs to the lists. That is a change to the gated law, so it is tested before it ships.</li>
+  <li><b>Every morning:</b> read the report: what was made, by which mind, for how many tokens, and whether it passed its checks.</li>
+</ol>
+
+<h3>Support and ownership</h3>
+<p>Supplied by <a href="https://www.ai-nativesolutions.com">AI Native Solutions</a>; start through the site. MIT-licensed,
+with no licence fee; it keeps running without us. Support terms are agreed per deployment, in each deployment's agreement.</p>
+
+<h3>Risks, answered straight</h3>
+<ul>
+  <li><b>The router reads the first verb, not the meaning.</b> "check whether the plan is sound" goes to the organ tier,
+  because "check" is an organ's verb. The sealed thirty jobs were written with the lists, so they test that the lists
+  do what they say, not real traffic; every route is in the record, so a misroute is seen and fixed in the lists.</li>
+  <li><b>The local model is weaker at judgement.</b> That is why judgement goes to the frontier; the measurement above says by how much.</li>
+  <li><b>The frontier is a rented service.</b> If it is down, or its client changes how it reports, the controller refuses a
+  report it cannot read and the night falls back to the local model, marked.</li>
+  <li><b>The wall bounds tokens, not quality.</b> The five checks catch an idea that is shapeless, invented, jargon or a
+  repeat; they do not judge whether it is a good idea. The owner does.</li>
+  <li><b>One client version was measured.</b> The receipt names it; a new version is measured again before its numbers are quoted.</li>
+</ul>
+
+<h3>The case for the board</h3>
+<p>AI spend has two failure modes: paying frontier prices for clerical work, and trusting a cheap model with decisions.
+The controller removes both with a rule anyone can read, a ceiling the bill cannot pass, and a record of which mind made every
+answer. It was measured against claims written before it existed, the measurement is re-graded on every push, and the code
+is the owner's to keep.</p>
+
+<h3>The paper: own the body, call the cortex</h3>
+<p>An AI estate is mostly body: organs that run, check, pack and count, each one deterministic and gated. Most of what it
+does needs no model at all, and much of the rest needs only a small one. What it lacks on its own is judgement: choosing what
+to build next, weighing a design, seeing what two of its parts could become together. The controller keeps the body owned and
+calls a frontier mind, the cortex, only for that.</p>
+<p>Three rules make it safe to leave running. The route is decided by code, so it can be tested and read. The spend is
+decided before the call, so a night cannot pass its budget however it ends. And the record never lies about its maker, so an
+answer the local model made is never mistaken for the frontier's. The measurement was sealed first, so the claims could
+fail; the ones that did are on this page beside the ones that held.</p>
+</section>
+
+
+<section class="on" id="brain">
 <h2 style="margin-top:0">The brain is switched on</h2>
 <p>Every organ below was built and proven, but they were not joined: a person carried each result from
 one to the next, so the person was the wiring. Since 2026-10-01 the organs are joined into one loop,
@@ -181,7 +395,7 @@ cross-checks it against independent sources, consolidates it into meaning, gener
 loops them back, and births new domains — through real organs, with every state change read from each
 organ's own count. Nothing here uses an LLM as a judge; every check is deterministic and re-runnable.</p>
 
-<h2>The organs</h2>
+<h2 id="organs">The organs</h2>
 <ul class="organs">
   <li><b>crystal</b> — exact facts, no drift; a read never blends one source's value into another's.</li>
   <li><b>octa</b> — verify: cross-checks 3+ independent sources per field, refuses a panel of duplicates.</li>
@@ -209,7 +423,7 @@ spinning, and persisting itself each beat.</p>
   doubly gated by a consent id and a path wall, and a test proves a full autonomous run writes no file.
 </div>
 
-<h2>Run it</h2>
+<h2 id="run">Run it</h2>
 <pre><code>git clone https://github.com/sjgant80-hub/kar-mind.git
 git clone https://github.com/sjgant80-hub/fall-remember.git
 git clone https://github.com/sjgant80-hub/the-dreamer.git
@@ -242,6 +456,68 @@ Regulation in Artificial Consciousness Systems," 2025.</p>
   Built by Kar. MIT-licensed.
   <a href="https://github.com/sjgant80-hub/kar-mind">Source on GitHub</a>.
 </footer>
+<noscript><p class="muted">The three live demos above run the controller's own code in your browser and need JavaScript; everything else on this page reads without it.</p></noscript>
+<script type="module">
+// the page runs the gated law itself: the same controller.mjs the tests and the witness gate hold
+import { route, walletFor, reserve, costCase } from './controller.mjs';
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+const LABEL = { deterministic: 'organ', local: 'local model', frontier: 'frontier' };
+const say = (s) => s.charAt(0).toUpperCase() + s.slice(1) + '.';
+
+// 1 · route a job
+function show() {
+  const r = route($('job').value, { left: 100000, ceiling: 30000 });
+  $('route-out').replaceChildren(el('span', 'tier', LABEL[r.tier]), document.createTextNode(say(r.why)));
+}
+$('route-btn').addEventListener('click', show);
+$('job').addEventListener('keydown', (e) => { if (e.key === 'Enter') show(); });
+for (const c of document.querySelectorAll('#route-demo .chip')) c.addEventListener('click', () => { $('job').value = c.textContent; show(); });
+show();
+
+// 2 · one night's wall
+const BUDGET = 100000, CEILING = 30000, n0 = (x) => x.toLocaleString('en-GB');
+let night = 1, calls = 0, st = walletFor(null, 'night-1', BUDGET);
+function paint() {
+  const b = st.wallet.budget;
+  $('wall-bar').style.width = (100 * b.spent / b.total) + '%';
+  $('wall-left').textContent = 'Night ' + night + ': ' + n0(b.spent) + ' reserved, ' + n0(b.total - b.spent) + ' left.';
+}
+$('ask-btn').addEventListener('click', () => {
+  calls++;
+  const r = route('propose tonight’s build idea', { left: st.wallet.budget.total - st.wallet.budget.spent, ceiling: CEILING });
+  let line;
+  if (r.tier === 'frontier') {
+    st = { ...st, wallet: reserve(st.wallet, CEILING).wallet };
+    line = 'Call ' + calls + ': authorised. ' + n0(CEILING) + ' written down as spent before the call goes out.';
+  } else line = 'Call ' + calls + ': refused before anything is sent. ' + say(r.why);
+  $('wall-log').append(el('li', r.tier === 'frontier' ? '' : 'refused', line));
+  paint();
+});
+$('night-btn').addEventListener('click', () => { night++; calls = 0; st = walletFor(st, 'night-' + night, BUDGET); $('wall-log').replaceChildren(); paint(); });
+paint();
+
+// 3 · price your own mix
+let data = {};
+try { data = JSON.parse($('controller-data').textContent); } catch { /* no receipt yet */ }
+const mix0 = data.mix || { deterministic: 10, local: 10, frontier: 10 };
+$('c-det').value = mix0.deterministic; $('c-loc').value = mix0.local; $('c-fro').value = mix0.frontier;
+const usd = (x, d = 2) => '$' + x.toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+const line = (a, b, c) => { const p = el('p', '', a); p.append(el('b', '', b), document.createTextNode(c)); return p; };
+function cost() {
+  const out = $('cost-out'), n = (id) => Number($(id).value);
+  if (!Array.isArray(data.tokens) || data.tokens.length === 0) { out.textContent = 'The measured frontier tokens land here when the sealed run is in.'; return; }
+  const c = costCase({ tokens: data.tokens, usdPerMTok: data.price.usdPerMTok, mix: { deterministic: n('c-det'), local: n('c-loc'), frontier: n('c-fro') }, jobs: n('c-jobs') });
+  if (!c.ok) { out.textContent = 'Whole numbers, please: ' + c.why + '.'; return; }
+  out.replaceChildren(
+    line('Every job on the frontier: at most ', usd(c.allFrontierUSD), ' a month.'),
+    line('Routed by the controller: at most ', usd(c.routedUSD), ' a month, with ' + Math.round(c.frontierShare * 100) + '% of jobs reaching the frontier.'),
+    line('Routing saves up to ', usd(c.savedUSD), ' a month.'),
+    el('p', 'muted', 'At most ' + usd(c.perCallUSD, 4) + ' a frontier call: ' + data.tokens.length + ' measured calls, priced at ' + data.price.listedAs + '’s dearest listed rate, read ' + data.price.read + ' from ' + data.price.source.replace('https://', '') + '.'));
+}
+for (const id of ['c-jobs', 'c-det', 'c-loc', 'c-fro']) $(id).addEventListener('input', cost);
+cost();
+</script>
 </div>
 </body>
 </html>

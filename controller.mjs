@@ -13,6 +13,9 @@
 //   ideaPrompt · IDEA_SCHEMA · readLocalIdea · ideaChecks
 //                                     → the nightly idea: one prompt and one answer shape for both tiers, and the five
 //                                       checks sealed in data/controller-prereg.json.
+//   costCase({ tokens, usdPerMTok, mix, jobs })
+//                                     → what routing saves against sending every job to the frontier, from measured
+//                                       tokens and a sourced price list: an upper bound, every token at the dearest rate.
 import { canDo, applySpend } from './vendor/fall-kit-core/vendor/wallet/wallet.mjs';
 
 export const TIERS = Object.freeze(['deterministic', 'local', 'frontier']);
@@ -167,7 +170,8 @@ export function ideaChecks(idea, ctx) {
  * local(prompt) → { text, model } (the local model), save(state) is told the wallet after the ceiling is spent and
  * BEFORE the call, so a night that dies mid-call has still spent it. → { tier, fallback, why, idea, tokens, model,
  * turns, denials, state, prompt }. When the frontier does not answer, the local model makes the idea and the record
- * says so; nothing that did not come from the frontier is ever marked frontier.
+ * says so; nothing that did not come from the frontier is ever marked frontier. A call that used more than its ceiling is
+ * charged the difference.
  */
 export async function nightIdea(deps) {
   const d = deps !== null && typeof deps === 'object' ? deps : {};
@@ -183,6 +187,12 @@ export async function nightIdea(deps) {
     if (t !== null && typeof t === 'object' && t.ok === true && t.structured !== null && typeof t.structured === 'object') {
       ({ tokens, model, turns, denials } = t);
       idea = t.structured;
+      // the wall counts the ceiling before the call; a call that ran past it is charged the overrun after, so the books
+      // say what it used and nothing more is allowed tonight once they are full
+      if (tokens > d.ceiling) {
+        st = { ...st, wallet: applySpend(st.wallet, tokens - d.ceiling) };
+        if (typeof d.save === 'function') await d.save(st);
+      }
     } else {
       tier = 'local'; fallback = true;
       why = 'the frontier did not answer (' + (t !== null && typeof t === 'object' && typeof t.why === 'string' ? t.why : 'no reply') + '): the local model, as a fallback';
@@ -195,4 +205,31 @@ export async function nightIdea(deps) {
     model = l !== null && typeof l === 'object' && typeof l.model === 'string' ? l.model : null;
   }
   return { tier, fallback, why, idea, tokens, model, turns, denials, state: st, prompt };
+}
+
+const RATES = Object.freeze(['input', 'output', 'cacheWrite', 'cacheRead']);
+const cents = (x) => Math.round(x * 100) / 100;
+/**
+ * The cost case. tokens = what each measured frontier call used; usdPerMTok = the vendor's list { input, output, cacheWrite,
+ * cacheRead } in dollars per million tokens; mix = how many of a set of jobs belong on each tier; jobs = how many a month.
+ * Every job is costed at what one measured frontier call cost, every token at the list's dearest rate, so the figures are
+ * an upper bound; the local tier runs on hardware already owned and is not costed. → { ok, perCallUSD, allFrontierUSD,
+ * routedUSD, savedUSD, frontierShare } | { ok: false, why }
+ */
+export function costCase(opts) {
+  const o = opts !== null && typeof opts === 'object' ? opts : {};
+  const t = Array.isArray(o.tokens) ? o.tokens : [];
+  if (t.length === 0 || !t.every((x) => Number.isSafeInteger(x) && x > 0)) return { ok: false, why: 'the measured tokens of at least one frontier call are needed' };
+  const p = o.usdPerMTok !== null && typeof o.usdPerMTok === 'object' ? o.usdPerMTok : {};
+  const rates = RATES.map((k) => p[k]);
+  if (!rates.every((r) => typeof r === 'number' && Number.isFinite(r) && r >= 0)) return { ok: false, why: 'a price list with all four rates is needed' };
+  const m = o.mix !== null && typeof o.mix === 'object' ? o.mix : {};
+  const n = TIERS.map((k) => m[k]);
+  if (!n.every((x) => Number.isSafeInteger(x) && x >= 0)) return { ok: false, why: 'the mix needs a whole count for each tier' };
+  const all = n[0] + n[1] + n[2];
+  if (all === 0) return { ok: false, why: 'the mix has no jobs' };
+  if (!Number.isSafeInteger(o.jobs) || o.jobs < 1) return { ok: false, why: 'a month needs at least one job' };
+  const perCall = (t.reduce((s, x) => s + x, 0) / t.length) * Math.max(...rates) / 1e6;
+  const share = n[2] / all, everything = o.jobs * perCall, routed = o.jobs * share * perCall;
+  return { ok: true, perCallUSD: Math.round(perCall * 10000) / 10000, allFrontierUSD: cents(everything), routedUSD: cents(routed), savedUSD: cents(everything - routed), frontierShare: share };
 }

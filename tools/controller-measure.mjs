@@ -27,13 +27,13 @@ const stable = (x) => JSON.stringify(x, null, 1) + '\n';
 const prereg = () => JSON.parse(readFileSync(join(ROOT, PRE), 'utf8'));
 
 // ── the parts anyone can re-run ──
-function routing(p) {
+export function routing(p) {
   const misses = [];
   let right = 0;
   for (const [words, tier] of p.routing.tasks) { const r = route(words, { left: 100000, ceiling: 30000 }); if (r.tier === tier) right++; else misses.push({ words, sealed: tier, routed: r.tier }); }
   return { right, of: p.routing.tasks.length, misses };
 }
-function budget() {
+export function budget() {
   let s = walletFor(null, '2026-10-25', 100000);
   const authorised = [], after = [];
   for (let i = 0; i < 6; i++) {
@@ -45,10 +45,10 @@ function budget() {
   const next = walletFor(s, '2026-10-26', 100000);
   return { authorised, spent: s.wallet.budget.spent, refusedWentLocal: after.filter((r) => r.tier === 'local' && r.fallback === true).length, nextNightFresh: next.wallet.budget.spent === 0 && next.night === '2026-10-26' };
 }
-function grade(pair, ideas, repos) {
+export function grade(pair, ideas, repos) {
   return ideas.map((x, i) => ({ pair: pair[i], ...ideaChecks(x, { pair: pair[i], repos, others: ideas.filter((_, j) => j !== i && ideas[j] && typeof ideas[j].idea === 'string').map((y) => y.idea) }) }));
 }
-function judge(facts) {
+export function judge(facts) {
   const f = facts, fr = f.frontier, lo = f.local;
   const frPass = fr.checks.filter((c) => c.passes).length, loPass = lo.checks.filter((c) => c.passes).length;
   const R = {
@@ -66,6 +66,15 @@ function judge(facts) {
   return { verdicts, held: verdicts.filter((v) => v.held === true).length, failed: verdicts.filter((v) => v.held === false).length };
 }
 
+/** Everything the receipt says, re-derived from its stored replies: re-route, re-run the budget, re-read, re-grade, re-judge. */
+export function regrade(p, run) {
+  const repos = new Set(run.publicRepos);
+  const facts = { ...run.facts, routing: routing(p), budget: budget() };
+  facts.frontier = { ...run.facts.frontier, checks: grade(p.ideas.pairs, run.facts.frontier.calls.map((c) => c.idea), repos) };
+  facts.local = { ...run.facts.local, checks: grade(p.ideas.pairs, run.facts.local.calls.map((c) => readLocalIdea(c.reply)), repos) };
+  return { facts, ...judge(facts) };
+}
+
 const isMain = process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url;
 if (isMain) {
   const p = prereg();
@@ -79,12 +88,8 @@ if (isMain) {
   if (has('--verify')) {
     if (!existsSync(join(ROOT, OUT))) { console.log('no run yet — sealed, not yet measured'); process.exit(0); }
     const run = JSON.parse(readFileSync(join(ROOT, OUT), 'utf8'));
-    const repos = new Set(run.publicRepos);
-    const f = { ...run.facts, routing: routing(p), budget: budget() };
-    f.frontier = { ...run.facts.frontier, checks: grade(p.ideas.pairs, run.facts.frontier.calls.map((c) => c.idea), repos) };
-    f.local = { ...run.facts.local, checks: grade(p.ideas.pairs, run.facts.local.calls.map((c) => readLocalIdea(c.reply)), repos) };
-    const j = judge(f);
-    const same = JSON.stringify(f) === JSON.stringify(run.facts) && JSON.stringify(j.verdicts) === JSON.stringify(run.verdicts);
+    const j = regrade(p, run);
+    const same = JSON.stringify(j.facts) === JSON.stringify(run.facts) && JSON.stringify(j.verdicts) === JSON.stringify(run.verdicts);
     for (const v of j.verdicts) console.log((v.held ? '  HELD    ' : '  FAILED  ') + v.id + ' — ' + v.measured);
     console.log(same ? 'CONTROLLER RECEIPT VERIFIED — re-graded from the stored replies' : 'CONTROLLER RECEIPT DIFFERS from what its stored replies grade to');
     process.exit(same ? 0 : 1);
@@ -144,7 +149,7 @@ if (isMain) {
   for (const pair of p.ideas.pairs) {
     const l = await local(ideaPrompt({ pair, what, recent: RECENT }));
     lo.push({ pair, reply: l.text, model: l.model });
-    console.log('local    ' + pair.join(' + ') + ': ' + String(l.text).replace(/s+/g, ' ').slice(0, 160));
+    console.log('local    ' + pair.join(' + ') + ': ' + String(l.text).replace(/\s+/g, ' ').slice(0, 160));
   }
   // K6: the frontier made unreachable — the CLI path broken
   const fb = await nightIdea({ pair: p.ideas.pairs[0], what, recent: RECENT, night: 'k6', budget: 100000, ceiling: 30000,

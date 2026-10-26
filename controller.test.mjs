@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { route, verbOf, fits, nightOf, walletFor, reserve, cortexArgs, readReply, ideaPrompt, readLocalIdea, similarity, ideaChecks,
+import { route, verbOf, fits, nightOf, walletFor, reserve, cortexArgs, readReply, ideaPrompt, readLocalIdea, similarity, ideaChecks, costCase,
   TIERS, RUN, NARROW, JUDGE, FRAME, TEMPLATE, IDEA_SCHEMA, IDEA_SYSTEM } from './controller.mjs';
 
 const prereg = JSON.parse(readFileSync(new URL('./data/controller-prereg.json', import.meta.url), 'utf8'));
@@ -243,3 +243,28 @@ test('the five checks, each on its own edge', () => {
   assert.ok(TEMPLATE.test('A bundled with B as a paired offer'));
 });
 
+
+test('costCase: what routing saves, an upper bound from measured tokens and a sourced list', () => {
+  const list = { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 };
+  const mix = { deterministic: 10, local: 10, frontier: 10 };
+  const c = costCase({ tokens: [3000, 5000], usdPerMTok: list, mix, jobs: 1000 });
+  // 4,000 tokens a call at the dearest rate ($25 a million) is $0.10; a thousand jobs all on the frontier is $100, a third of them $33.33
+  assert.deepEqual(c, { ok: true, perCallUSD: 0.1, allFrontierUSD: 100, routedUSD: 33.33, savedUSD: 66.67, frontierShare: 1 / 3 });
+  assert.equal(costCase({ tokens: [3001], usdPerMTok: list, mix, jobs: 1 }).perCallUSD, 0.075, 'per call to four places');
+  assert.equal(costCase({ tokens: [3003], usdPerMTok: list, mix, jobs: 1 }).perCallUSD, 0.0751);
+  assert.equal(costCase({ tokens: [4000], usdPerMTok: { ...list, cacheRead: 40 }, mix, jobs: 1000 }).allFrontierUSD, 160, 'the dearest rate, whichever it is');
+  assert.equal(costCase({ tokens: [4000], usdPerMTok: list, mix: { deterministic: 0, local: 0, frontier: 3 }, jobs: 10 }).savedUSD, 0, 'all judgement: nothing saved');
+  assert.equal(costCase({ tokens: [4000], usdPerMTok: list, mix: { deterministic: 1, local: 0, frontier: 0 }, jobs: 10 }).routedUSD, 0, 'no judgement: nothing spent');
+  assert.equal(costCase({ tokens: [4000], usdPerMTok: list, mix: { deterministic: 0, local: 1, frontier: 1 }, jobs: 10 }).frontierShare, 0.5, 'the local tier counts as routed away');
+  assert.equal(costCase({ tokens: [1], usdPerMTok: { input: 0, output: 0, cacheWrite: 0, cacheRead: 0 }, mix, jobs: 1 }).ok, true, 'a free list is a list');
+  assert.equal(costCase({ tokens: [4000], usdPerMTok: list, mix, jobs: 3 }).routedUSD, 0.1, 'cents');
+  for (const bad of [null, 'x', {}, { tokens: [] }, { tokens: [0] }, { tokens: [1.5] }, { tokens: [-1] }, { tokens: 'x' }])
+    assert.match(costCase(bad).why, /measured tokens/, JSON.stringify(bad));
+  for (const p of [null, 'x', { ...list, output: undefined }, { ...list, input: -1 }, { ...list, cacheRead: NaN }, { ...list, cacheWrite: Infinity }, { ...list, input: '5' }])
+    assert.match(costCase({ tokens: [1], usdPerMTok: p, mix, jobs: 1 }).why, /price list/, JSON.stringify(p));
+  for (const x of [null, 'x', { ...mix, local: -1 }, { ...mix, frontier: 1.5 }, { deterministic: 1, local: 1 }, { ...mix, deterministic: '1' }])
+    assert.match(costCase({ tokens: [1], usdPerMTok: list, mix: x, jobs: 1 }).why, /whole count/, JSON.stringify(x));
+  assert.match(costCase({ tokens: [1], usdPerMTok: list, mix: { deterministic: 0, local: 0, frontier: 0 }, jobs: 1 }).why, /no jobs/);
+  for (const j of [0, -1, 1.5, '10', undefined]) assert.match(costCase({ tokens: [1], usdPerMTok: list, mix, jobs: j }).why, /at least one job/, String(j));
+  assert.equal(costCase({ tokens: [1], usdPerMTok: list, mix, jobs: 1 }).ok, true, 'one job is a month');
+});
