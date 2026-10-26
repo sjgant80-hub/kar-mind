@@ -36,7 +36,7 @@
   "mainEntity": [
     { "@type": "Question", "name": "What is kar-mind?", "acceptedAnswer": { "@type": "Answer", "text": "A persistent, autonomous cognitive stack that wires small, independently-gated memory organs into one runnable system: it perceives a fact, cross-checks it against independent sources, consolidates it into meaning, generates new facts and loops them back, and births new domains — through real organs, with every state change read from each organ's own count." } },
     { "@type": "Question", "name": "Does kar-mind use an LLM as a judge?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every check is deterministic and re-runnable — cross-source verification, recall scoring, and the output verifier are all code, with no model-in-the-loop scoring." } },
-    { "@type": "Question", "name": "How does it survive a restart?", "acceptedAnswer": { "@type": "Answer", "text": "Cognition is event-sourced: every state-changing verb records its cause, and the log is sealed to disk with real gzip and a receipt hash over every field, tamper-refused on load. On boot the organs replay the log and reach identical counts — a write-ahead-log persistence architecture." } },
+    { "@type": "Question", "name": "How does it survive a restart?", "acceptedAnswer": { "@type": "Answer", "text": "Cognition is event-sourced: every state-changing verb records its cause, and the log is kept on disk as one LIGHT vault (the estate's own lossless codec, with the SHA-256 of the events inside), refused on load if it was changed. A journal written before LIGHT, in gzip with a receipt hash, still loads and migrates without loss. On boot the organs replay the log and reach identical counts — a write-ahead-log persistence architecture." } },
     { "@type": "Question", "name": "Can the autonomous loop publish or spend on its own?", "acceptedAnswer": { "@type": "Answer", "text": "No. The run-loop imports no path to any irreversible outside-world action — there is no publish verb and no spend verb reachable from it, by construction. The export door itself is doubly gated by a consent id and a path wall, and a test proves a full autonomous run stages no export and writes no file." } },
     { "@type": "Question", "name": "What is Kar's controller?", "acceptedAnswer": { "@type": "Answer", "text": "One rule for every job an AI estate does: a job an organ already does runs as code with no model, a narrow wording job goes to a small local model, and judgement goes to Claude on the owner's own login, through the official client with no tools, no servers and nothing saved. It was measured against seven claims sealed before it was written." } },
     { "@type": "Question", "name": "Can the controller's frontier bill run away?", "acceptedAnswer": { "@type": "Answer", "text": "No. A frontier call is made only if its whole token ceiling still fits in the night's budget, and the ceiling is counted as spent before the call goes out; a call that used more is charged the difference, and once the books are full nothing more is sent until the next night. When the frontier is refused or unreachable, the local model does the job and the record says so." } },
@@ -416,10 +416,14 @@ organ's own count. Nothing here uses an LLM as a judge; every check is determini
 </ul>
 
 <h2>It survives a restart</h2>
-<p>Cognition is event-sourced: every state-changing verb records its cause. The log is sealed to disk
-with real gzip and a receipt hash over every field (tamper-refused on load), and on boot the organs
-replay it and reach identical counts — a write-ahead-log persistence architecture. A brand-new process
-boots from the durable file alone and comes back whole.</p>
+<p>Cognition is event-sourced: every state-changing verb records its cause. The log is kept on disk as one
+LIGHT vault: the estate's own lossless codec, with the SHA-256 of the events inside, so a changed journal is
+refused on load, or reads back exactly what was sealed, never anything else. On boot the organs replay it and
+reach identical counts — a write-ahead-log persistence architecture. A brand-new process boots from the
+durable file alone and comes back whole. A journal written before LIGHT (gzip with a receipt hash over every
+field) still loads; the first save after it writes the vault, reads it back, and only when every event matches
+moves the old file aside, kept, never deleted. Measured in the estate go-live's Phase 2:
+<a href="https://sjgant80-hub.github.io/fall-kit/core/phase2/">sjgant80-hub.github.io/fall-kit/core/phase2</a>.</p>
 
 <h2>It runs its own loop</h2>
 <p>From one call, the run-loop pulls its own stimuli and drives the full cascade over and over, moving

@@ -179,9 +179,11 @@ per-hop receipt read from real organ state. `snapshot()` reads real counts from 
 
 ## Persistence — it survives a restart
 
-Cognition is **event-sourced**: every state-changing verb records the event that caused it. `persist.mjs`
-seals that log to disk with real gzip and a receipt hash over every field (tamper-refused on load), and
-on boot `rebuildMind()` replays it through the real organs. Because the organs are deterministic given
+Cognition is **event-sourced**: every state-changing verb records the event that caused it. A journal written
+before LIGHT (gzip with a receipt hash) still loads and migrates without loss, the old file moved aside, never
+deleted (Phase 2 of the estate go-live: https://sjgant80-hub.github.io/fall-kit/core/phase2/). `persist.mjs`
+keeps that log on disk as one LIGHT vault (the estate's own lossless codec, the SHA-256 of the events inside; a
+changed journal is refused on load), and on boot `rebuildMind()` replays it through the real organs. Because the organs are deterministic given
 their inputs, the rebuilt mind reaches **identical counts**. A brand-new process boots from the durable
 file alone and comes back whole; a real wipe boots it genuinely empty. This is a write-ahead-log
 persistence architecture.
