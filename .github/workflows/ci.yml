@@ -51,6 +51,9 @@ jobs:
           if [ -f data/codec-run.json ]; then node tools/codec-measure.mjs --verify; fi
           # the digest re-laid (2026-10-05): replies re-graded (the seal's --check needs the local pinned prompt, so it runs locally)
           if [ -f data/layout-run.json ]; then node tools/layout-measure.mjs --verify; fi
+          # the controller (2026-10-26): its seal, and once measured every stored reply re-graded to the committed verdicts
+          node tools/controller-measure.mjs --check
+          node tools/controller-measure.mjs --verify
           node tools/build-page.mjs
           git diff --exit-code -- index.html README.md || { echo "the page is stale: run node tools/build-page.mjs and commit"; exit 1; }
 
@@ -90,3 +93,5 @@ jobs:
           grep -q '"clean": true' codec.out || { echo "::error::mutants survived in seedcodec.mjs"; exit 1; }
           node ../witness/witness.mjs mutate layout.mjs --timeout 60000 --test node --test layout.test.mjs | tee layout.out
           grep -q '"clean": true' layout.out || { echo "::error::mutants survived in layout.mjs"; exit 1; }
+          node ../witness/witness.mjs mutate controller.mjs --timeout 60000 --test node --test controller.test.mjs controller-flow.test.mjs | tee controller.out
+          grep -q '"clean": true' controller.out || { echo "::error::mutants survived in controller.mjs"; exit 1; }
