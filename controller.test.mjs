@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { route, verbOf, fits, nightOf, walletFor, reserve, cortexArgs, readReply, ideaPrompt, readLocalIdea, similarity, ideaChecks, costCase,
+import { route, verbOf, fits, nightOf, walletFor, reserve, cortexArgs, readReply, ideaPrompt, readLocalIdea, similarity, ideaChecks, costCase, wallCap,
   TIERS, RUN, NARROW, JUDGE, FRAME, TEMPLATE, IDEA_SCHEMA, IDEA_SYSTEM } from './controller.mjs';
 
 const prereg = JSON.parse(readFileSync(new URL('./data/controller-prereg.json', import.meta.url), 'utf8'));
@@ -267,4 +267,19 @@ test('costCase: what routing saves, an upper bound from measured tokens and a so
   assert.match(costCase({ tokens: [1], usdPerMTok: list, mix: { deterministic: 0, local: 0, frontier: 0 }, jobs: 1 }).why, /no jobs/);
   for (const j of [0, -1, 1.5, '10', undefined]) assert.match(costCase({ tokens: [1], usdPerMTok: list, mix, jobs: j }).why, /at least one job/, String(j));
   assert.equal(costCase({ tokens: [1], usdPerMTok: list, mix, jobs: 1 }).ok, true, 'one job is a month');
+});
+
+test('wallCap: the wall in money, at the dearest listed rate', () => {
+  const list = { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 };
+  // 100,000 tokens a night for 31 nights is 3.1 million tokens; at $25 a million, $77.50
+  assert.deepEqual(wallCap({ nightly: 100000, nights: 31, usdPerMTok: list }), { ok: true, usd: 77.5 });
+  assert.equal(wallCap({ nightly: 0, nights: 31, usdPerMTok: list }).usd, 0, 'a zero budget: nothing can be paid');
+  assert.equal(wallCap({ nightly: 1000, nights: 1, usdPerMTok: list }).usd, 0.03, 'cents');
+  assert.equal(wallCap({ nightly: 1000, nights: 1, usdPerMTok: { ...list, cacheRead: 100 } }).usd, 0.1, 'the dearest rate, whichever it is');
+  for (const n of [-1, 1.5, '1000', null, undefined]) assert.match(wallCap({ nightly: n, nights: 1, usdPerMTok: list }).why, /whole number/, String(n));
+  for (const n of [0, -1, 1.5, '3', undefined]) assert.match(wallCap({ nightly: 1, nights: n, usdPerMTok: list }).why, /one night/, String(n));
+  for (const p of [null, 'x', { ...list, output: undefined }, { ...list, input: -1 }, { ...list, cacheRead: NaN }, { ...list, cacheWrite: Infinity }])
+    assert.match(wallCap({ nightly: 1, nights: 1, usdPerMTok: p }).why, /price list/, JSON.stringify(p));
+  assert.equal(wallCap(null).ok, false);
+  assert.equal(wallCap('x').ok, false);
 });

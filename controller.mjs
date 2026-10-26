@@ -13,6 +13,7 @@
 //   ideaPrompt · IDEA_SCHEMA · readLocalIdea · ideaChecks
 //                                     → the nightly idea: one prompt and one answer shape for both tiers, and the five
 //                                       checks sealed in data/controller-prereg.json.
+//   wallCap({ nightly, nights, usdPerMTok }) → the most the frontier can be paid over that many nights, at the dearest rate.
 //   costCase({ tokens, usdPerMTok, mix, jobs })
 //                                     → what routing saves against sending every job to the frontier, from measured
 //                                       tokens and a sourced price list: an upper bound, every token at the dearest rate.
@@ -209,6 +210,21 @@ export async function nightIdea(deps) {
 
 const RATES = Object.freeze(['input', 'output', 'cacheWrite', 'cacheRead']);
 const cents = (x) => Math.round(x * 100) / 100;
+const listOf = (p) => { const q = p !== null && typeof p === 'object' ? p : {}; const r = RATES.map((k) => q[k]); return r.every((x) => typeof x === 'number' && Number.isFinite(x) && x >= 0) ? r : null; };
+/**
+ * The wall in money: the most the frontier can be paid over `nights` nights of `nightly` tokens, every token at the list's
+ * dearest rate. A call that ran past its ceiling shuts its night, so the books can pass this by at most one call's overrun
+ * a night; the cortex caps a reply at 4,000 tokens, which keeps a call far under its ceiling. → { ok, usd } | { ok: false, why }
+ */
+export function wallCap(opts) {
+  const o = opts !== null && typeof opts === 'object' ? opts : {};
+  if (!Number.isSafeInteger(o.nightly) || o.nightly < 0) return { ok: false, why: 'a nightly budget is a whole number of tokens' };
+  if (!Number.isSafeInteger(o.nights) || o.nights < 1) return { ok: false, why: 'at least one night' };
+  const r = listOf(o.usdPerMTok);
+  if (r === null) return { ok: false, why: 'a price list with all four rates is needed' };
+  return { ok: true, usd: cents(o.nightly * o.nights * Math.max(...r) / 1e6) };
+}
+
 /**
  * The cost case. tokens = what each measured frontier call used; usdPerMTok = the vendor's list { input, output, cacheWrite,
  * cacheRead } in dollars per million tokens; mix = how many of a set of jobs belong on each tier; jobs = how many a month.
@@ -220,9 +236,8 @@ export function costCase(opts) {
   const o = opts !== null && typeof opts === 'object' ? opts : {};
   const t = Array.isArray(o.tokens) ? o.tokens : [];
   if (t.length === 0 || !t.every((x) => Number.isSafeInteger(x) && x > 0)) return { ok: false, why: 'the measured tokens of at least one frontier call are needed' };
-  const p = o.usdPerMTok !== null && typeof o.usdPerMTok === 'object' ? o.usdPerMTok : {};
-  const rates = RATES.map((k) => p[k]);
-  if (!rates.every((r) => typeof r === 'number' && Number.isFinite(r) && r >= 0)) return { ok: false, why: 'a price list with all four rates is needed' };
+  const rates = listOf(o.usdPerMTok);
+  if (rates === null) return { ok: false, why: 'a price list with all four rates is needed' };
   const m = o.mix !== null && typeof o.mix === 'object' ? o.mix : {};
   const n = TIERS.map((k) => m[k]);
   if (!n.every((x) => Number.isSafeInteger(x) && x >= 0)) return { ok: false, why: 'the mix needs a whole count for each tier' };

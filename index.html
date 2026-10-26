@@ -128,7 +128,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 
 <section class="on" id="controller">
 <h2 style="margin-top:0">Kar the controller: own the body, call the cortex</h2>
-<p><b>What it is.</b> One rule for every job an AI estate does: send it to the cheapest mind that can do it right.
+<p><b>What it is.</b> Kar is the AI that runs this estate: the programs, models and pages one owner runs. The controller
+is the rule Kar follows for every job: send it to the cheapest mind that can do it right. Kar owns the body (the code that
+does the work) and calls the cortex (a frontier model) only for judgement.
 A job an organ already does (run a gate, pack the memory, re-run a census) runs as code, with no model at all. A narrow
 wording job (summarise, tag, draft a short line) goes to the small model on this laptop. Judgement (propose, decide,
 review, design) goes to Claude, on the owner's own login. A nightly wall caps what the frontier may spend, checked before
@@ -139,8 +141,12 @@ every call. When the frontier cannot be reached, the local model does the job an
   <li><b>Route a job.</b> Type any job in plain words, or pick one, and press Route. This is the real controller
   (<code>controller.mjs</code>, the same file the gate tests), running in your browser.</li>
   <li><b>Hit the wall.</b> Ask for frontier calls against one night's budget and watch the fourth be refused before it is made.</li>
-  <li><b>Price your own mix.</b> Further down, put in how many jobs you run a month and how they split; the controller's own
-  cost function prices them at the vendor's published list.</li>
+  <li><b>Price your own mix.</b> Further down, put in how many jobs you run a month, how they split and your nightly budget;
+  the controller's own cost functions price them at the vendor's published list.</li>
+  <li><b>Run it yourself.</b> <code>git clone https://github.com/sjgant80-hub/kar-mind.git</code>, then in it
+  <code>node --test controller.test.mjs controller-flow.test.mjs</code> (the law's tests) and
+  <code>node tools/controller-measure.mjs --verify</code> (re-grades the whole receipt from its stored replies; no model
+  needed). With Claude Code installed and signed in, <code>node tools/cortex.mjs "Say ok."</code> makes one real call.</li>
 </ol>
 
 <div class="demo" id="route-demo">
@@ -211,8 +217,9 @@ step that names one of the two, and is not a repeat of another idea in the run.<
 
 <h3>Price your own mix</h3>
 <div class="demo" id="cost-demo">
-  <p style="margin:0 0 8px"><b>3 · Your jobs.</b> How many AI jobs a month, and how a typical set of them splits. The split starts at the sealed thirty.</p>
+  <p style="margin:0 0 8px"><b>3 · Your jobs.</b> How many AI jobs a month, how a typical set of them splits (it starts at the sealed thirty), and the nightly frontier budget.</p>
   <div class="grid">
+    <label>nightly budget (tokens)<input id="c-night" type="number" min="0" step="1000" value="100000"></label>
     <label>jobs a month<input id="c-jobs" type="number" min="1" step="1" value="1000"></label>
     <label>organ jobs<input id="c-det" type="number" min="0" step="1"></label>
     <label>wording jobs<input id="c-loc" type="number" min="0" step="1"></label>
@@ -246,7 +253,7 @@ and the sealed measurement above shows how much worse it does. The controller is
 the bill cannot pass.</p>
 <div class="scroll"><table class="wide"><thead><tr><th>who</th><th>what they get</th></tr></thead><tbody>
 <tr><td>CEO</td><td>The strongest model on the decisions that matter, the cheapest route everywhere else, and a bill that cannot run away.</td></tr>
-<tr><td>CFO</td><td>A hard nightly ceiling on frontier tokens, counted before each call; a cost case priced from the vendor's own list as an upper bound; jobs that need no model cost nothing.</td></tr>
+<tr><td>CFO</td><td>A worst-case monthly frontier bill you set yourself (the calculator below works it out); a hard nightly ceiling on frontier tokens, counted before each call; a cost case priced from the vendor's own list as an upper bound; jobs that need no model cost nothing.</td></tr>
 <tr><td>CTO / CISO</td><td>The frontier gets no tools, no servers and no files, and nothing is saved. The controller holds no API key. Organ and wording jobs never leave the machine. The routing rule is a few lines of tested code, not a model's guess.</td></tr>
 <tr><td>COO</td><td>Overnight work runs without a person relaying it. When the frontier is down the work still gets done locally, and the record says so.</td></tr>
 <tr><td>The teams</td><td>Routine wording jobs answered on the laptop; judgement jobs answered by the frontier; every answer says which mind made it.</td></tr>
@@ -261,6 +268,8 @@ the bill cannot pass.</p>
   local (UK GDPR and GDPR: the controller decides what is sent, and the record shows what was).</li>
   <li><b>Audit:</b> every nightly answer is appended to a ledger with its maker, its tier, its tokens and the reason for its
   route. Nothing is rewritten.</li>
+  <li><b>What the vendor keeps:</b> nothing of a call is saved on the machine; what the vendor keeps is set by the owner's
+  own account terms with the vendor, as for any use of that account.</li>
   <li><b>Keys:</b> none stored by the controller. The client uses the owner's own login, and the environment is cleaned of
   every key and proxy before each call.</li>
 </ul>
@@ -302,7 +311,8 @@ does needs no model at all, and much of the rest needs only a small one. What it
 to build next, weighing a design, seeing what two of its parts could become together. The controller keeps the body owned and
 calls a frontier mind, the cortex, only for that.</p>
 <p>Three rules make it safe to leave running. The route is decided by code, so it can be tested and read. The spend is
-decided before the call, so a night cannot pass its budget however it ends. And the record never lies about its maker, so an
+decided before the call, and a call that runs past its ceiling shuts the night, so however a night ends its spend is held
+to its budget (and a reply is capped, so a call runs far under its ceiling). And the record never lies about its maker, so an
 answer the local model made is never mistaken for the frontier's. The measurement was sealed first, so the claims could
 fail; the ones that did are on this page beside the ones that held.</p>
 </section>
@@ -459,7 +469,7 @@ Regulation in Artificial Consciousness Systems," 2025.</p>
 <noscript><p class="muted">The three live demos above run the controller's own code in your browser and need JavaScript; everything else on this page reads without it.</p></noscript>
 <script type="module">
 // the page runs the gated law itself: the same controller.mjs the tests and the witness gate hold
-import { route, walletFor, reserve, costCase } from './controller.mjs';
+import { route, walletFor, reserve, costCase, wallCap } from './controller.mjs';
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
 const LABEL = { deterministic: 'organ', local: 'local model', frontier: 'frontier' };
@@ -504,18 +514,23 @@ const mix0 = data.mix || { deterministic: 10, local: 10, frontier: 10 };
 $('c-det').value = mix0.deterministic; $('c-loc').value = mix0.local; $('c-fro').value = mix0.frontier;
 const usd = (x, d = 2) => '$' + x.toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
 const line = (a, b, c) => { const p = el('p', '', a); p.append(el('b', '', b), document.createTextNode(c)); return p; };
+function wall() {
+  const w = wallCap({ nightly: Number($('c-night').value), nights: 31, usdPerMTok: data.price.usdPerMTok });
+  return w.ok ? line('The wall holds the frontier to at most ', usd(w.usd), ' a month: 31 nights of the nightly budget at the dearest listed rate (a call that ran past its ceiling would be charged and would shut its night).') : el('p', 'muted', 'The wall: ' + w.why + '.');
+}
 function cost() {
   const out = $('cost-out'), n = (id) => Number($(id).value);
-  if (!Array.isArray(data.tokens) || data.tokens.length === 0) { out.textContent = 'The measured frontier tokens land here when the sealed run is in.'; return; }
+  if (!Array.isArray(data.tokens) || data.tokens.length === 0) { out.replaceChildren(el('p', 'muted', 'The cost per job lands here when the sealed run is in (it is priced from the measured frontier tokens).'), wall()); return; }
   const c = costCase({ tokens: data.tokens, usdPerMTok: data.price.usdPerMTok, mix: { deterministic: n('c-det'), local: n('c-loc'), frontier: n('c-fro') }, jobs: n('c-jobs') });
   if (!c.ok) { out.textContent = 'Whole numbers, please: ' + c.why + '.'; return; }
   out.replaceChildren(
     line('Every job on the frontier: at most ', usd(c.allFrontierUSD), ' a month.'),
     line('Routed by the controller: at most ', usd(c.routedUSD), ' a month, with ' + Math.round(c.frontierShare * 100) + '% of jobs reaching the frontier.'),
     line('Routing saves up to ', usd(c.savedUSD), ' a month.'),
+    wall(),
     el('p', 'muted', 'At most ' + usd(c.perCallUSD, 4) + ' a frontier call: ' + data.tokens.length + ' measured calls, priced at ' + data.price.listedAs + '’s dearest listed rate, read ' + data.price.read + ' from ' + data.price.source.replace('https://', '') + '.'));
 }
-for (const id of ['c-jobs', 'c-det', 'c-loc', 'c-fro']) $(id).addEventListener('input', cost);
+for (const id of ['c-jobs', 'c-det', 'c-loc', 'c-fro', 'c-night']) $(id).addEventListener('input', cost);
 cost();
 </script>
 </div>
