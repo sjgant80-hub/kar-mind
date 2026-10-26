@@ -1,1 +1,3 @@
 vendor/fall-kit-core/** -text
+*.lcb binary
+*.light binary

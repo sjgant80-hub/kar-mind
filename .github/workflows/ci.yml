@@ -54,6 +54,8 @@ jobs:
           # the controller (2026-10-26): its seal, and once measured every stored reply re-graded to the committed verdicts
           node tools/controller-measure.mjs --check
           node tools/controller-measure.mjs --verify
+          # every model call of the measured run, kept as a LIGHT call book (Phase 2, pass 3): read back and checked against the run
+          node tools/callbook-build.mjs --verify
           node tools/build-page.mjs
           git diff --exit-code -- index.html README.md || { echo "the page is stale: run node tools/build-page.mjs and commit"; exit 1; }
 
@@ -96,3 +98,5 @@ jobs:
           grep -q '"clean": true' layout.out || { echo "::error::mutants survived in layout.mjs"; exit 1; }
           node ../witness/witness.mjs mutate controller.mjs --cap 1000 --timeout 60000 --test node --test controller.test.mjs controller-flow.test.mjs | tee controller.out
           grep -q '"clean": true' controller.out || { echo "::error::mutants survived in controller.mjs"; exit 1; }
+          node ../witness/witness.mjs mutate callbook.mjs --cap 1000 --timeout 120000 --test node --test callbook.test.mjs | tee callbook.out
+          grep -q '"clean": true' callbook.out || { echo "::error::mutants survived in callbook.mjs"; exit 1; }
