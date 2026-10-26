@@ -48,7 +48,7 @@ test('the paths come from the environment', () => {
 test('ingest writes new facts to the journal once, and a change once more', async () => {
   const first = await cli.ingest();
   assert.deepEqual([first.read, first.wrote, first.events], [5, 5, 5], 'two memory files, one ask, two queue items — not the index, not the .txt');
-  assert.equal(first.journal, join(A.brain, 'mind-journal.json'));
+  assert.equal(first.journal, join(A.brain, 'mind-journal.light'));
   assert.ok(existsSync(first.journal));
   const again = await cli.ingest();
   assert.deepEqual([again.wrote, again.events], [0, 5], 'an unchanged world writes nothing');
@@ -60,10 +60,10 @@ test('ingest writes new facts to the journal once, and a change once more', asyn
 test('the journal survives: a fresh boot replays it to the same facts', async () => {
   const b = await cli.open();
   assert.equal(b.mind.events().length, 6);
-  assert.equal(b.restoredFrom, join(A.brain, 'mind-journal.json'));
+  assert.equal(b.restoredFrom, join(A.brain, 'mind-journal.light'));
   const fresh = run(A, 'status');
   assert.equal(fresh.status, 0);
-  assert.deepEqual(JSON.parse(fresh.stdout), { facts: 5, events: 6, journal: join(A.brain, 'mind-journal.json'), digest: join(A.brain, 'digest.txt') });
+  assert.deepEqual(JSON.parse(fresh.stdout), { facts: 5, events: 6, journal: join(A.brain, 'mind-journal.light'), digest: join(A.brain, 'digest.txt') });
 });
 
 test('the digest reads the working memory back, and marking moves the last look', async () => {
