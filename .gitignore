@@ -7,3 +7,5 @@ node_modules/
 .si-didy/
 persist-*.dat
 .DS_Store
+.controller-frontier.partial.json
+*.out

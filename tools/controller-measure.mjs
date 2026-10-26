@@ -91,6 +91,7 @@ if (isMain) {
   }
   if (!has('--run')) die('usage: node tools/controller-measure.mjs --check | --run | --verify');
   if (git('status', '--porcelain', PRE).trim()) die('commit the seal first');
+  if (git('status', '--porcelain', 'controller.mjs', 'tools/cortex.mjs', 'tools/controller-measure.mjs').trim()) die('commit the code first: the receipt names the commit that measured it');
   git('fetch', '-q', 'origin');
   try { git('merge-base', '--is-ancestor', git('log', '-1', '--format=%H', '--', PRE).trim(), 'origin/master'); } catch { die('push the seal first'); }
   const sealedIn = git('log', '--diff-filter=A', '--format=%H', '--', PRE).trim().split('\n').pop();
@@ -101,36 +102,62 @@ if (isMain) {
   const repos = new Set(publicRepos);
   const { think } = await import('./cortex.mjs');
   const W = await import(pathToFileURL('C:/Users/sjgan/si-didy/local-wire.mjs').href);
-  const chosen = await W.pickModel(['qwen2.5:7b'], { extraBytes: 1.5e9 });
-  if (!chosen.ok) die('the local model does not fit tonight: ' + chosen.why);
-  const local = async (prompt) => ({ text: await W.generate(chosen.model, prompt, { numPredict: 260, keepAlive: '10m', seed: 7 }), model: chosen.model });
-  const fr = [], lo = [];
-  for (const pair of p.ideas.pairs) {
-    // the frontier arm goes through the controller itself, a fresh night each, so a call that does not answer is recorded
-    // as the fallback it became, and its local idea is never graded as the frontier's
-    const r = await nightIdea({ pair, what, recent: RECENT, night: 'k4-' + pair.join('+'), budget: 100000, ceiling: 30000, think, local });
-    const onFrontier = r.tier === 'frontier';
-    fr.push({ pair, tier: r.tier, why: r.why, idea: onFrontier ? r.idea : null, tokens: r.tokens, turns: r.turns, denials: r.denials, model: r.model });
-    console.log('frontier ' + pair.join(' + ') + ': ' + (onFrontier ? r.idea && r.idea.idea : 'FELL BACK — ' + r.why));
-    const prompt = ideaPrompt({ pair, what, recent: RECENT });
-    if (prompt !== r.prompt) die('the two arms were not given the same prompt');
-    const l = await local(prompt);
-    lo.push({ pair, reply: l.text, model: l.model });
-    console.log('local    ' + pair.join(' + ') + ': ' + String(l.text).replace(/\s+/g, ' ').slice(0, 160));
+  // the local model is the biggest that fits (local-wire's rule; the prompt is short, so Ollama's own context and no
+  // extra). A day's open windows can hold the room: then the run waits for it, never forces it (forced, it pages to disk).
+  const room = () => W.pickModel(['qwen2.5:7b']);
+  async function waitForRoom(capMin) {
+    const t0 = Date.now();
+    for (;;) {
+      const c = await room();
+      const waitedMin = Math.round((Date.now() - t0) / 60000);
+      if (c.ok || waitedMin >= capMin) return { ...c, waitedMin };
+      console.log('waiting for room for the 7B (' + waitedMin + ' min): ' + c.why);
+      await new Promise((r) => setTimeout(r, 60000));
+    }
   }
-  await W.unload(chosen.model);
+  const local = async (prompt) => {
+    const c = await room();
+    if (!c.ok) throw new Error('no room for the local model: ' + c.why);
+    return { text: await W.generate(c.model, prompt, { numPredict: 260, keepAlive: '10m', seed: 7 }), model: c.model };
+  };
+  // the frontier arm first (it needs no room here); kept in a scratch file so an interrupted wait never re-asks it
+  const PART = join(ROOT, '.controller-frontier.partial.json');
+  let part = existsSync(PART) ? JSON.parse(readFileSync(PART, 'utf8')) : null;
+  if (!part || part.sealedIn !== sealedIn || part.code !== git('rev-parse', 'HEAD').trim()) {
+    const calls = [];
+    for (const pair of p.ideas.pairs) {
+      // through the controller itself, a fresh night each: a call that does not answer is recorded as the fallback it
+      // became, and its local idea is never graded as the frontier's
+      const r = await nightIdea({ pair, what, recent: RECENT, night: 'k4-' + pair.join('+'), budget: 100000, ceiling: 30000, think, local });
+      if (r.prompt !== ideaPrompt({ pair, what, recent: RECENT })) die('the controller did not ask the sealed prompt');
+      const onFrontier = r.tier === 'frontier';
+      calls.push({ pair, tier: r.tier, why: r.why, idea: onFrontier ? r.idea : null, tokens: r.tokens, turns: r.turns, denials: r.denials, model: r.model });
+      console.log('frontier ' + pair.join(' + ') + ': ' + (onFrontier ? r.idea && r.idea.idea : 'FELL BACK — ' + r.why));
+    }
+    part = { sealedIn, code: git('rev-parse', 'HEAD').trim(), askedAt: new Date().toISOString(), calls };
+    writeFileSync(PART, stable(part));
+  } else console.log('the frontier arm was asked at ' + part.askedAt + ': reused, not re-asked');
+  const fr = part.calls;
+  const roomFor = await waitForRoom(14 * 60);
+  if (!roomFor.ok) die('no room for the 7B after ' + roomFor.waitedMin + ' min: ' + roomFor.why + ' (the frontier arm is kept; run again)');
+  const lo = [];
+  for (const pair of p.ideas.pairs) {
+    const l = await local(ideaPrompt({ pair, what, recent: RECENT }));
+    lo.push({ pair, reply: l.text, model: l.model });
+    console.log('local    ' + pair.join(' + ') + ': ' + String(l.text).replace(/s+/g, ' ').slice(0, 160));
+  }
   // K6: the frontier made unreachable — the CLI path broken
   const fb = await nightIdea({ pair: p.ideas.pairs[0], what, recent: RECENT, night: 'k6', budget: 100000, ceiling: 30000,
     think: (c) => think({ ...c, cli: 'C:/no/such/claude.exe' }), local });
-  await W.unload(chosen.model);
+  await W.unload(roomFor.model);
   const facts = {
     routing: routing(p), budget: budget(),
     frontier: { calls: fr, tokens: fr.reduce((s, c) => s + c.tokens, 0), checks: grade(p.ideas.pairs, fr.map((c) => c.idea), repos) },
-    local: { model: chosen.model, calls: lo, checks: grade(p.ideas.pairs, lo.map((c) => readLocalIdea(c.reply)), repos) },
+    local: { model: roomFor.model, waitedMin: roomFor.waitedMin, calls: lo, checks: grade(p.ideas.pairs, lo.map((c) => readLocalIdea(c.reply)), repos) },
     fallback: { tier: fb.tier, fallback: fb.fallback, why: fb.why, model: fb.model, idea: fb.idea },
   };
   const j = judge(facts);
-  const run = { kind: 'kar-mind-controller-run', v: 1, sealedIn, startedAt, finishedAt: new Date().toISOString(), node: process.version, recent: RECENT, publicRepos, facts, verdicts: j.verdicts, held: j.held, failed: j.failed };
+  const run = { kind: 'kar-mind-controller-run', v: 1, sealedIn, code: part.code, startedAt, frontierAskedAt: part.askedAt, finishedAt: new Date().toISOString(), node: process.version, recent: RECENT, publicRepos, facts, verdicts: j.verdicts, held: j.held, failed: j.failed };
   writeFileSync(join(ROOT, OUT), stable(run));
   for (const v of j.verdicts) console.log((v.held ? '  HELD    ' : '  FAILED  ') + v.id + ' — ' + v.measured);
   console.log(j.held + ' held, ' + j.failed + ' failed · wrote ' + OUT);
