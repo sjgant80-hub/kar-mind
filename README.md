@@ -252,7 +252,7 @@ nothing about its wire, so the wires and the whole-system flow have their own te
 
 This project composes and builds on others' work, credited in full:
 
-- **Gary W. Floyd** — Lumiea Systems Research Division, ThunderStruck Service LLC. The distinct-tier
+- **Gary W. Floyd** — Lumiea Systems Research Division, ThunderStruck Service, LLC. The distinct-tier
   memory architecture and the real `nexus_shortterm` schema (knowledge graph, chunk embeddings +
   content chunks, dream-space tiers, Dewey classification + routing rules, compositor outcomes,
   promotion candidates) from **NEXUS** (2026) and **Dream State Architecture** (2025) are the reference

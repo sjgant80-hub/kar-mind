@@ -6,7 +6,7 @@
 //
 // PROVENANCE, held the way the Floyd provenance rule requires: the distinct-organs memory architecture
 // this floor belongs under is Gary W. Floyd's — Lumiea Systems Research Division, ThunderStruck
-// Service LLC, "NEXUS — Distributed Synthetic Intelligence" (2026) and "Dream State Architecture"
+// Service, LLC, "NEXUS — Distributed Synthetic Intelligence" (2026) and "Dream State Architecture"
 // (2025). Credited in full, verbatim. The estate's solid-shape naming (crystal/octa/dodeca/icosa/tetra)
 // is the estate's own lens over that architecture, not Gary's terms — nothing in this file's own
 // logic is geometry; it is a plain key/provenance store. Built on the Konomi method (Thomas Frumkin).

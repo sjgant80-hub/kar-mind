@@ -38,7 +38,7 @@ irreversible outside-world action, by construction.
 - `node --test` runs the full gate suite. Requires Node 18+; no dependencies.
 
 ## Credits
-- Gary W. Floyd — Lumiea Systems Research Division, ThunderStruck Service LLC — NEXUS (2026) and Dream
+- Gary W. Floyd — Lumiea Systems Research Division, ThunderStruck Service, LLC — NEXUS (2026) and Dream
   State Architecture (2025): the distinct-tier memory architecture and the nexus_shortterm schema that
   the durable write-ahead-log persistence is shaped after.
 - Thomas Frumkin — Konomi / MianoCube: the cube/database-split method the stack forks from.

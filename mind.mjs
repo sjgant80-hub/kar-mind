@@ -16,7 +16,7 @@
 //
 // PROVENANCE, held to the Floyd provenance rule and the Konomi provenance rule:
 //   • The distinct-tier memory architecture this stack is shaped after is GARY W. FLOYD's — Lumiea
-//     Systems Research Division, ThunderStruck Service LLC — NEXUS (2026) and Dream State
+//     Systems Research Division, ThunderStruck Service, LLC — NEXUS (2026) and Dream State
 //     Architecture (2025). Gary's real `nexus_shortterm` schema (knowledge_graph, chunk_embeddings +
 //     content_chunks, dream_space's tier column, dewey_classification + routing_rules, compositor_
 //     outcomes, v_promotion_candidates) is the reference for how these tiers are shaped and how items

@@ -14,7 +14,7 @@
 // the first flush after it writes the LIGHT vault, reads it back, and only when the events come back identical moves
 // the old file aside as `mind-journal.json.migrated`, kept, never deleted. A LIGHT vault that is present always wins.
 //
-// SHAPED AFTER GARY W. FLOYD's NEXUS (Lumiea Systems Research Division, ThunderStruck Service LLC):
+// SHAPED AFTER GARY W. FLOYD's NEXUS (Lumiea Systems Research Division, ThunderStruck Service, LLC):
 // Nexus persists its tiers in a real database and feeds them from a durable ingest/processing layer
 // (`processing_queue`, `async_jobs` in the real `nexus_shortterm` schema). This journal is that
 // durable ingest log; the organs are the working tiers rebuilt from it — a write-ahead-log persistence

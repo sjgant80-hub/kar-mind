@@ -4,7 +4,7 @@
 //
 // The estate already had the organs (Simon, 2026-10-01: "you've built every organ ... but they're not
 // linked"): the persistent mind (persist.mjs + mind.mjs, shaped after Gary W. Floyd's NEXUS — Lumiea
-// Systems Research Division, ThunderStruck Service LLC), the memory files, Kar's asks, the soul, the
+// Systems Research Division, ThunderStruck Service, LLC), the memory files, Kar's asks, the soul, the
 // cockpit. What it lacked was the wire between them, so a person had to carry every result from one to
 // the next. This is that wire's logic. The glue that reads files and writes the journal is
 // brain-cli.mjs; everything here is pure, so the gate can attack all of it.
