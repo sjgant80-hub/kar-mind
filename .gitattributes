@@ -1,3 +1,4 @@
 vendor/fall-kit-core/** -text
 *.lcb binary
 *.light binary
+vendor/sovereign-enterprise/** -text

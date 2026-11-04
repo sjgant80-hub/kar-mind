@@ -1,0 +1,16 @@
+{
+ "kind": "kar-mind.vendor",
+ "v": 1,
+ "note": "Copied byte for byte from sjgant80-hub/sovereign-enterprise at the commit named (the raw blob, not a working copy); the same bytes liveware vendors through ai-first-company. Never edit a vendored file; re-vendor.",
+ "repo": "sjgant80-hub/sovereign-enterprise",
+ "commit": "003e44795bc0ef90c92b7ee6a53160f51be1be79",
+ "files": [
+  {
+   "path": "vendor/sovereign-enterprise/data/basis.json",
+   "src": "data/basis.json",
+   "sha256": "83e9c2effa2f81596dcfa7110f030940032c1910cdf928d27d628ae59d73bb42",
+   "gitBlob": "8fe2e392afe1be3c8d430225b0786984ba0854ef",
+   "what": "the sourced cost basis (ONS wage, CPI, DESNZ electricity, ECB exchange rate, vendor list prices) the cost case on the page reads"
+  }
+ ]
+}
