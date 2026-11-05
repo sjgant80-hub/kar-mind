@@ -12,6 +12,20 @@ hash over every field) and comes back whole after a restart. It runs its own loo
 with no caller per step. It cannot publish or spend on its own — the loop has no path to any
 irreversible outside-world action, by construction.
 
+## In plain words
+kar-mind is the working mind of Kar, the AI that runs one owner's estate. Three jobs: the controller (which mind does
+each AI job: code, a small local model, or Claude on the owner's own login for judgement only, under a nightly spending
+wall counted before each call); the brain (the memory every session starts from); and the line to Grok (one shared
+status log between Kar and a second AI agent, read at every session start, loud when Kar has gone quiet). The live page
+runs the real code in the browser, prices a team's own cost case from public sources (businesscase.mjs; no prices of
+the supplier's), and lists every kernel with its mutation-gate result from GitHub's runner (data/gate-receipt.json).
+Supplied by AI Native Solutions (https://www.ai-nativesolutions.com); MIT; it keeps running without the supplier.
+
+## The line to Grok (2026-10-31)
+- continuity.mjs reads the shared STATUS.md for a session's start: Grok's latest report, his open asks (daily repeats
+  shown once, "none" skipped), and how long since Kar last wrote; tools/kar-status.mjs adds Kar's entries and pushes.
+- The log's location lives only in local config, never in this public repository.
+
 ## The brain, switched on (2026-10-01)
 - The organs are joined into one loop: every session start reads the agent's memory files, asks and build queue into the persistent journal through the real mind, and starts from the digest it reads back (latest builds, what changed, the next build, the decisions only its owner makes).
 - The owner's direct line to the agent (a local cockpit) reads the same brain on every message; a separate local service takes memory changes in live, with no restart.

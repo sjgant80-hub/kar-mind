@@ -1,0 +1,455 @@
+{
+ "kind": "kar-mind.gate-receipt",
+ "v": 1,
+ "sha": "6449511df546edebf7935d2ff8f3073b46f4f33d",
+ "run": "42041133053",
+ "witness": "v0.6",
+ "node": "v22.23.4",
+ "totals": {
+  "kernels": 25,
+  "mutants": 819,
+  "caught": 819,
+  "survived": 0,
+  "ignored": 0,
+  "clean": true,
+  "testsPassed": 261,
+  "testsFailed": 0
+ },
+ "kernels": [
+  {
+   "kernel": "mind.mjs",
+   "sha256": "55663873cb58a47c42da1e1a163df9dca225735367bbc36486ed287f5082baec",
+   "mutants": 31,
+   "caught": 31,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "mind.test.mjs",
+     "pass": 18,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "persist.mjs",
+   "sha256": "44bcae6101ecc4f0f068ba758ba8d1726d18f3502d1ddc6f19e7f339af177d8a",
+   "mutants": 8,
+   "caught": 8,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "persist.test.mjs",
+     "pass": 9,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "run-loop.mjs",
+   "sha256": "731f4e48653367173d55f8f6ad3b4070b7fa1019decd3066f25285f4afe9d86c",
+   "mutants": 24,
+   "caught": 24,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "run-loop.test.mjs",
+     "pass": 7,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "mind-persistent.mjs",
+   "sha256": "f1003e8e1ea52afa494fa1efbaa8684094d23ae809fff769c3ab2322f334bbb1",
+   "mutants": 9,
+   "caught": 9,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "mind-persistent.test.mjs",
+     "pass": 2,
+     "fail": 0
+    },
+    {
+     "file": "mind-persist.test.mjs",
+     "pass": 3,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "brain.mjs",
+   "sha256": "1b26c702c9f520f5a6e3512eca1b6acddd68b9197dc02027f5090798b22f4c18",
+   "mutants": 113,
+   "caught": 113,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "brain.test.mjs",
+     "pass": 16,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "brain-cli.mjs",
+   "sha256": "ade09ca46eed45d441298b205df027a4c4dc3cd862687ce88856e7b0bba97796",
+   "mutants": 19,
+   "caught": 19,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "brain-cli.test.mjs",
+     "pass": 7,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "pattern.mjs",
+   "sha256": "d5011f717cc98cef8d2751526f37f76b06d46e4e14587739247f303fb0fd4e0e",
+   "mutants": 44,
+   "caught": 44,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "pattern.test.mjs",
+     "pass": 11,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "watch.mjs",
+   "sha256": "e9b279d310b6d6d51237a4544540d0b71afbfc0c62b1a3d8c375d2bbe2b476bb",
+   "mutants": 56,
+   "caught": 56,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "watch.test.mjs",
+     "pass": 7,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "layout.mjs",
+   "sha256": "21279ea65febb57f5e714b5960a372cbc6f986fc6c370f804e7e0319fb06c025",
+   "mutants": 18,
+   "caught": 18,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "layout.test.mjs",
+     "pass": 6,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "seedcodec.mjs",
+   "sha256": "809bd79f7bdaaecbefa36c620e5d8c7438029245fb8d27069883c954a8ef3be3",
+   "mutants": 53,
+   "caught": 53,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "seedcodec.test.mjs",
+     "pass": 6,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "continuity.mjs",
+   "sha256": "ff8522614763d64a08bd79c7d2bc1e22417c8795450879a7a3dc61bb74f910b5",
+   "mutants": 29,
+   "caught": 29,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "continuity.test.mjs",
+     "pass": 7,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "controller.mjs",
+   "sha256": "b35bd8c0e8609066186e8a0a5fc46dce7577c74a499724642b73096cac3df040",
+   "mutants": 197,
+   "caught": 197,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "controller.test.mjs",
+     "pass": 15,
+     "fail": 0
+    },
+    {
+     "file": "controller-flow.test.mjs",
+     "pass": 5,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "callbook.mjs",
+   "sha256": "7f5f03dd20418317dc67ebf435cff858dc2360931e9e4a8183efb5e3c42e7d1a",
+   "mutants": 43,
+   "caught": 43,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "callbook.test.mjs",
+     "pass": 5,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "businesscase.mjs",
+   "sha256": "becf953653c6ccbd24db7dcd42c2854d810df64e5ef5924e5088d8f627de07d2",
+   "mutants": 23,
+   "caught": 23,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "businesscase.test.mjs",
+     "pass": 11,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "gatereceipt.mjs",
+   "sha256": "b1b56d8f41ec8b244cf09ef4b69b09585c76c41cbc5664f0b082adf6424c9567",
+   "mutants": 29,
+   "caught": 29,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "gatereceipt.test.mjs",
+     "pass": 8,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "crystal.mjs",
+   "sha256": "da556c04712cf6d5daf0d594b6d05de401c459a1038288165779099036787e3c",
+   "mutants": 22,
+   "caught": 22,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "crystal.test.mjs",
+     "pass": 24,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "strand.mjs",
+   "sha256": "bbdf1b36f05350ec47114b1ed331b984bed52f7da434ab9f7fed088759e98b65",
+   "mutants": 33,
+   "caught": 33,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "strand.test.mjs",
+     "pass": 22,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "tetra.mjs",
+   "sha256": "7ae59c1212fc3b92b54015fb0da1cc4bae61578f0e138dd7508246272cf7b0a3",
+   "mutants": 16,
+   "caught": 16,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "tetra.test.mjs",
+     "pass": 13,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "consent-gate.mjs",
+   "sha256": "d0224ef1f85c4b02405b4637fc7057882205105bea20793974997699d4b3d1c6",
+   "mutants": 5,
+   "caught": 5,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "consent-gate.test.mjs",
+     "pass": 13,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "wall.mjs",
+   "sha256": "556766ea53b64b552d4fe110165e577f44f3ab84508a5f9b23265e2e026c08b8",
+   "mutants": 12,
+   "caught": 12,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "wall.test.mjs",
+     "pass": 12,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "breach-harness.mjs",
+   "sha256": "117db629d9c10034c66c96c53f0e89ae53a240d2dc029d788b9ea315224bd522",
+   "mutants": 7,
+   "caught": 7,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "breach-harness.test.mjs",
+     "pass": 13,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "wisp-discriminator.mjs",
+   "sha256": "3d6b3e58625a665f2b160bc22cb7a042253c36426a0ff81b0cb34f82763f1ebe",
+   "mutants": 12,
+   "caught": 12,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "wisp-discriminator.test.mjs",
+     "pass": 5,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "wire-octa.mjs",
+   "sha256": "ef59512226b8737447691566c8df8e439ad61313994a9cb40c3b0a4f868fddf0",
+   "mutants": 3,
+   "caught": 3,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "edge-gate-octa.test.mjs",
+     "pass": 6,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "wire-dodeca.mjs",
+   "sha256": "1f4c22b9e1aba62079c54ad5108927616d238c8d8f7ab40ce131d1781aebea85",
+   "mutants": 5,
+   "caught": 5,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "edge-gate-dodeca.test.mjs",
+     "pass": 5,
+     "fail": 0
+    }
+   ]
+  },
+  {
+   "kernel": "wire-icosa.mjs",
+   "sha256": "138947811642fb1b38975e2f8cacf9bf793c72cef3e1dbf8bd7b0eee1dee8b8d",
+   "mutants": 8,
+   "caught": 8,
+   "survived": 0,
+   "ignored": 0,
+   "capped": false,
+   "clean": true,
+   "tests": [
+    {
+     "file": "edge-gate-icosa.test.mjs",
+     "pass": 5,
+     "fail": 0
+    }
+   ]
+  }
+ ]
+}
