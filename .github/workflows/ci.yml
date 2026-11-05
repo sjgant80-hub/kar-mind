@@ -28,7 +28,19 @@ jobs:
           node-version: '22'
       - name: run the whole gate suite (unit + wired edge-gates + persistence + autonomy + restart)
         working-directory: kar-mind
-        run: node --test
+        # the usual report, plus each test file's pass/fail counts as JSON for the gate receipt (tools/count-reporter.mjs)
+        run: node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=./tools/count-reporter.mjs --test-reporter-destination=../test-counts.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-counts
+          path: test-counts.json
+      # THE GATE RECEIPT: the page's blueprint numbers are what GitHub's runner said (data/gate-receipt.json, built by
+      # node tools/gate-receipt.mjs --from <this run's downloaded artifacts>). It must name exactly the kernels this
+      # workflow gates; a kernel changed since its run is named on the page as changed, never shown as still measured.
+      - name: the gate receipt covers every gated kernel
+        working-directory: kar-mind
+        run: if [ -f data/gate-receipt.json ]; then node tools/gate-receipt.mjs --check; fi
       # THE BRAIN, switched on 2026-10-01: its measurement was sealed before anything was asked. The seal must
       # be what the script writes; once measured, every recorded reply must re-grade to the committed result;
       # and the page's numbers must be what the grader gives.
@@ -84,6 +96,7 @@ jobs:
           - { kernel: controller.mjs, tests: "controller.test.mjs controller-flow.test.mjs" }
           - { kernel: callbook.mjs, tests: "callbook.test.mjs", timeout: 120000 }
           - { kernel: businesscase.mjs, tests: "businesscase.test.mjs" }
+          - { kernel: gatereceipt.mjs, tests: "gatereceipt.test.mjs" }
           - { kernel: crystal.mjs, tests: "crystal.test.mjs" }
           - { kernel: strand.mjs, tests: "strand.test.mjs" }
           - { kernel: tetra.mjs, tests: "tetra.test.mjs" }

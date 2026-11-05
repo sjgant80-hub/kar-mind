@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { route, verbOf, fits, nightOf, walletFor, reserve, cortexArgs, readReply, ideaPrompt, readLocalIdea, similarity, ideaChecks, costCase, wallCap,
-  TIERS, RUN, NARROW, JUDGE, FRAME, TEMPLATE, IDEA_SCHEMA, IDEA_SYSTEM } from './controller.mjs';
+  cleanEnv, ENV_KEEP, TIERS, RUN, NARROW, JUDGE, FRAME, TEMPLATE, IDEA_SCHEMA, IDEA_SYSTEM } from './controller.mjs';
 
 const prereg = JSON.parse(readFileSync(new URL('./data/controller-prereg.json', import.meta.url), 'utf8'));
 const B = { left: 100000, ceiling: 30000 };
@@ -127,6 +127,24 @@ test('cortexArgs: no tools, no MCP, nothing saved; refuses a model or prompt tha
   assert.equal(cortexArgs({ model: 'claude-opus-4-8', system: 5 }), null);
   assert.equal(cortexArgs({ model: 5, system: 'sys' }), null);
   assert.equal(cortexArgs(null), null);
+});
+
+test('cleanEnv: no Anthropic key, token or endpoint override rides into a frontier call; the login token and the shell path stay', () => {
+  assert.deepEqual(ENV_KEEP, ['CLAUDE_CODE_GIT_BASH_PATH', 'CLAUDE_CODE_OAUTH_TOKEN']);
+  assert.ok(Object.isFrozen(ENV_KEEP));
+  const env = {
+    PATH: '/bin', HOME: '/h', ANTHROPIC_API_KEY: 'sk-x', ANTHROPIC_AUTH_TOKEN: 't', ANTHROPIC_BASE_URL: 'https://proxy.example', anthropic_api_key: 'lower',
+    CLAUDECODE: '1', CLAUDE_CODE_ENTRYPOINT: 'cli', claude_config_dir: '/c', CLAUDE_CODE_OAUTH_TOKEN: 'login', CLAUDE_CODE_GIT_BASH_PATH: 'C:/git/bash.exe',
+    MY_ANTHROPIC_NOTE: 'kept: the rule is a prefix', XCLAUDE: 'kept too', N: 5, U: undefined, O: { a: 1 },
+  };
+  assert.deepEqual(cleanEnv(env), { PATH: '/bin', HOME: '/h', CLAUDE_CODE_OAUTH_TOKEN: 'login', CLAUDE_CODE_GIT_BASH_PATH: 'C:/git/bash.exe', MY_ANTHROPIC_NOTE: 'kept: the rule is a prefix', XCLAUDE: 'kept too' });
+  assert.deepEqual(cleanEnv({ claude_code_oauth_token: 'case matters for the two kept' }), {}, 'only the exact names are kept');
+  assert.deepEqual(cleanEnv({ ANTHROPIC_: 'bare prefix' }), {});
+  assert.deepEqual(cleanEnv({ ANTHROPICX: 'not the prefix' }), { ANTHROPICX: 'not the prefix' });
+  assert.deepEqual(cleanEnv({ CLAUDE: 'bare' }), {});
+  for (const junk of [null, undefined, 5, 'PATH=/bin', ['ANTHROPIC_API_KEY'], true]) assert.deepEqual(cleanEnv(junk), {}, String(junk));
+  const src = { A: 'a' }; const out = cleanEnv(src); out.B = 'b';
+  assert.deepEqual(src, { A: 'a' }, 'the caller’s environment is never changed');
 });
 
 test('readReply: the CLI report, read; a refusal or junk is not a reply', () => {

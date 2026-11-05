@@ -10,6 +10,7 @@
 //                                     → the nightly wallet (the shared foundation's wallet kernel): a frontier call is made
 //                                       only if its whole ceiling still fits, and the ceiling is spent before the call.
 //   cortexArgs · readReply            → the CLI's arguments (no tools, no MCP, nothing saved) and its JSON report, read.
+//   cleanEnv(env)                     → the call's environment: no Anthropic key, token or endpoint override rides along.
 //   ideaPrompt · IDEA_SCHEMA · readLocalIdea · ideaChecks
 //                                     → the nightly idea: one prompt and one answer shape for both tiers, and the five
 //                                       checks sealed in data/controller-prereg.json.
@@ -80,6 +81,19 @@ export function cortexArgs(opts) {
   if (typeof o.model !== 'string' || !/^claude-[a-z0-9.-]+$/.test(o.model) || typeof o.system !== 'string' || !o.system) return null;
   return ['-p', '--output-format', 'json', '--model', o.model, '--system-prompt', o.system, '--tools', '', '--setting-sources', 'project',
     '--strict-mcp-config', '--no-session-persistence', '--disable-slash-commands', '--no-chrome', ...(o.schema !== null && typeof o.schema === 'object' ? ['--json-schema', JSON.stringify(o.schema)] : [])];
+}
+
+/** The environment a frontier call runs in: every ANTHROPIC_* and CLAUDE* variable removed (keys, tokens, an endpoint
+ *  override, a parent session's markers), except the two the official client needs on the owner's own login; only text
+ *  values carried. The same rule as the cockpit's, so the call runs on the login, never on a key or a redirected endpoint. */
+export const ENV_KEEP = Object.freeze(['CLAUDE_CODE_GIT_BASH_PATH', 'CLAUDE_CODE_OAUTH_TOKEN']);
+export function cleanEnv(env) {
+  const out = {};
+  for (const [k, v] of Object.entries(env !== null && typeof env === 'object' && !Array.isArray(env) ? env : {})) {
+    if (/^(ANTHROPIC_|CLAUDE)/i.test(k) && !ENV_KEEP.includes(k)) continue;
+    if (typeof v === 'string') out[k] = v;
+  }
+  return out;
 }
 
 const num = (x) => (Number.isSafeInteger(x) ? Math.max(0, x) : 0);

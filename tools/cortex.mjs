@@ -1,24 +1,38 @@
-// tools/cortex.mjs — the frontier wire (glue, local only): one call to Claude on Simon's own login, through the official
+// tools/cortex.mjs — the frontier wire (glue, local only): one call to Claude on the owner's own login, through the official
 // claude CLI. It runs from an empty folder, so no project memory rides in uninvited (from inside a project the CLI loads
 // that project's memory: 16,195 tokens for a one-word reply, against 177 from an empty folder, measured 2026-10-26).
-// The environment is cleaned of every key and proxy (login, not rent); a long-lived token from `claude setup-token`, if
-// Simon has made one (~/.si-didy/kar-oauth.token), is passed the way the cockpit passes it. No tools, no MCP servers,
-// nothing saved. The arguments and the reading of the reply are controller.mjs's (gated); this file only carries them.
+// The environment is cleaned by controller.mjs's cleanEnv (gated): no Anthropic key, token or endpoint override rides along
+// (login, not rent); a long-lived token from `claude setup-token`, if the owner has made one (~/.si-didy/kar-oauth.token),
+// is passed the way the cockpit passes it. No tools, no MCP servers, nothing saved. The arguments and the reading of the
+// reply are controller.mjs's (gated); this file only carries them.
+// Which client: KAR_CLAUDE_CLI if set; else the newest one the si-didy kit finds on Simon's laptop (~/si-didy, or
+// KAR_SIDIDY), if that kit is there; else `claude` from the PATH, as Claude Code installs it. Runs on any machine.
 import { spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync } from 'node:fs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
-import { cortexArgs, readReply } from '../controller.mjs';
+import { homedir, tmpdir } from 'node:os';
+import { cortexArgs, readReply, cleanEnv } from '../controller.mjs';
 
 export const MODEL = process.env.KAR_CORTEX_MODEL || 'claude-opus-4-8';   // the newest the installed CLI serves on the login
 const OAUTH = join(homedir(), '.si-didy', 'kar-oauth.token');
 export const OUTPUT_CAP = 4000;
+const ROOM = process.platform === 'win32' ? 'C:\\tmp\\kar-cortex' : join(tmpdir(), 'kar-cortex');
 
-async function kit() {
-  const S = await import(pathToFileURL('C:/Users/sjgan/si-didy/claude-session.mjs').href);
-  const K = (await import(pathToFileURL('C:/Users/sjgan/si-didy/cockpit-kernel.mjs').href)).default;
-  return { findNewestCli: S.findNewestCli, cleanEnv: K.cleanEnv };
+/** the client to run: { path, source } */
+export async function findCli() {
+  if (process.env.KAR_CLAUDE_CLI) return { path: process.env.KAR_CLAUDE_CLI, source: 'KAR_CLAUDE_CLI' };
+  const kit = join(process.env.KAR_SIDIDY || join(homedir(), 'si-didy'), 'claude-session.mjs');
+  if (existsSync(kit)) {
+    try { const c = (await import(pathToFileURL(kit).href)).findNewestCli(); if (c && c.path) return { path: c.path, source: 'si-didy' }; } catch { /* the usual places, then */ }
+  }
+  // where Claude Code installs its binary: npm's global package, then the native installer's ~/.local/bin; on Windows the
+  // npm shim on the PATH is a .cmd, which cannot be started without a shell, so the .exe inside the package is used
+  const npm = process.env.APPDATA ? join(process.env.APPDATA, 'npm') : join(homedir(), '.npm-global');
+  for (const bin of ['claude.exe', 'claude']) {
+    for (const p of [join(npm, 'node_modules', '@anthropic-ai', 'claude-code', 'bin', bin), join(homedir(), '.local', 'bin', bin)]) if (existsSync(p)) return { path: p, source: 'installed' };
+  }
+  return { path: 'claude', source: 'PATH' };
 }
 
 /** One call. opts = { prompt, system, schema?, model?, timeoutMs?, cli? (a path, to choose or to break the wire) } */
@@ -26,13 +40,10 @@ export async function think(opts) {
   const o = opts && typeof opts === 'object' ? opts : {};
   const args = cortexArgs({ model: o.model || MODEL, system: o.system, schema: o.schema });
   if (!args || typeof o.prompt !== 'string' || !o.prompt) return { ok: false, why: 'not a call the controller would make' };
-  let K;
-  try { K = await kit(); } catch (e) { return { ok: false, why: 'the cockpit kit is not here: ' + (e && e.message || e) }; }
-  const cli = o.cli ? { path: o.cli } : K.findNewestCli();
-  if (!cli) return { ok: false, why: 'no claude CLI on this machine' };
-  mkdirSync('C:\\tmp\\kar-cortex', { recursive: true });
-  const cwd = mkdtempSync('C:\\tmp\\kar-cortex\\think-');
-  const env = K.cleanEnv(process.env);
+  const cli = o.cli ? { path: o.cli } : await findCli();
+  mkdirSync(ROOM, { recursive: true });
+  const cwd = mkdtempSync(join(ROOM, 'think-'));
+  const env = cleanEnv(process.env);
   try { const t = readFileSync(OAUTH, 'utf8').trim(); if (t) env.CLAUDE_CODE_OAUTH_TOKEN = t; } catch { /* the CLI's own stored login, then */ }
   // the reply is one small JSON object: its output is capped, so with the bounded prompt a call stays far under its ceiling
   env.CLAUDE_CODE_MAX_OUTPUT_TOKENS = String(OUTPUT_CAP);
