@@ -6,6 +6,7 @@
 <title>kar-mind</title>
 <meta name="description" content="A persistent, autonomous cognitive stack that composes verified memory organs into one runnable system — and structurally cannot publish or spend. No LLM judge; every check is deterministic.">
 <link rel="canonical" href="https://sjgant80-hub.github.io/kar-mind/">
+<link rel="icon" href="data:,">
 <meta property="og:title" content="kar-mind">
 <meta property="og:description" content="A persistent, autonomous cognitive stack that composes verified memory organs — and structurally cannot publish or spend.">
 <meta property="og:type" content="website">
@@ -637,6 +638,8 @@ is applied to every later year, so each saving is a floor. No price of ours appe
   <li><b>What leaves the machine.</b> Two things: the words of a judgement job, sent to Claude on the owner’s own account through the vendor’s official client, and the status log’s entries, pushed to the private git repository the owner chooses. kar-mind runs no server and sends nothing to the supplier: no telemetry, no call home. Organ jobs run as code; wording jobs go to the local model at 127.0.0.1.</li>
   <li><b>Keys.</b> None is stored. A frontier call’s environment is cleaned by gated code (<code>cleanEnv</code> in <code>controller.mjs</code>) of every Anthropic key, token and endpoint override, so the call runs on the owner’s own login and cannot be redirected.</li>
   <li><b>Personal data.</b> The memory files, the journal and the call book stay on the owner’s disk, and the owner is the data controller (UK GDPR and GDPR). The router decides by the verb, not the content, so keep personal data out of judgement jobs, or set the frontier budget to zero and nothing leaves at all.</li>
+  <li><b>Injected instructions.</b> Whatever words a judgement job carries reach the frontier, so a planted instruction in them reaches it too. The frontier gets no tools, no servers and no files, so the most such an instruction can do is shape an answer, and every answer is recorded with the mind that made it and read by the owner before anything acts on it.</li>
+  <li><b>Erasure.</b> The journal and the call book are sealed and append-only, so nothing is edited inside them. To erase a fact, take it out of the memory files, delete the journal file in <code>KAR_BRAIN_DIR</code>, and ingest again: the journal is rebuilt from the sources as they are now. A call book is deleted the same way.</li>
   <li><b>Integrity.</b> The journal is one LIGHT vault with the SHA-256 of its events inside, refused on load if it was changed. The call book is append-only and refused at the first frame that changed.</li>
   <li><b>The safety wall.</b> The autonomous loop has no publish verb and no spend verb. The export door needs a consent id and must pass a path wall (<code>consent-gate.mjs</code>, <code>wall.mjs</code>), and a test proves a full autonomous run writes no file.</li>
   <li><b>Audit.</b> Every claim on this page was sealed in a commit before it was measured; CI re-grades every stored reply on every push; the failures stay on the page beside the claims that held.</li>
@@ -660,8 +663,9 @@ is applied to every later year, so each saving is a floor. No price of ours appe
 <tr><td>Support, SLA, warranty, liability</td><td>Agreed per deployment, in that deployment’s agreement. The MIT licence on its own carries no warranty.</td></tr>
 <tr><td>Commercial terms</td><td>Agreed per deployment, through the supplier’s site.</td></tr>
 <tr><td>Where does our data go?</td><td>Not to the supplier: there is no server, no telemetry and no call home. Judgement-job words go to the AI vendor on your own account; the status log lives in the git repository you choose; everything else stays on your disk.</td></tr>
+<tr><td>Data processing agreement</td><td>A running install sends the supplier none of your data, so the supplier processes none; any access the supplier needs while setting it up is covered in the deployment agreement.</td></tr>
 <tr><td>Sub-processors</td><td>None added by the supplier. The AI vendor you already use (for Claude, Anthropic, through its official client and under your account’s terms), and wherever you host the status log.</td></tr>
-<tr><td>Dependencies</td><td>No runtime npm dependencies; Node 18 or newer; three public sibling organs, cloned next to it; two vendored parts, pinned by SHA-256 and checked on every push.</td></tr>
+<tr><td>Dependencies</td><td>No runtime npm dependencies; Node 18 or newer; three public sibling organs, cloned next to it; two vendored parts, pinned by SHA-256 and checked on every push. For wording jobs, a local model on a machine with the memory to hold it (the measurements here used qwen2.5:7b through Ollama); the local wire picks the biggest model that fits in free memory and refuses one that does not. For judgement, Claude Code signed in on your own account.</td></tr>
 <tr><td>Certifications</td><td>None is claimed for this code. What you get instead is evidence you can re-run: the gates, the mutation-gate receipt and every sealed measurement, re-graded on every push.</td></tr>
 <tr><td>Exit</td><td>It keeps running without the supplier. The code is in your repository and the journal is a file on your disk, in a codec whose source is in the repository. There is nothing at our end to switch off.</td></tr>
 </tbody></table></div>
@@ -841,7 +845,7 @@ function renderCase() {
     ['Today', 'Your team carries the work by hand: briefing each new session, copying results between tools, relaying between agents, routing jobs.', 'today'],
     ['Rent AI assistant seats', basis['seat.copilot'].product + ' for ' + r.inputs.seats + (r.inputs.seats === 1 ? ' person' : ' people') + ' (' + gbp(L.seats) + ' a year). It helps each person; the carrying, and the staff time, stay.', 'rentSeats'],
     ['A cloud AI on every job', 'Takes the same share off, every job billed at ' + basis.frontier.product + ' rates (' + gbp(L.api) + ' a year at your volume), and every job leaves your building.', 'cloudApi'],
-    ['Own it, through the controller', 'Takes the same share off on a machine you already have. Only the judgement share reaches the frontier (' + gbp(L.judgement) + ' a year at the same listed rate, an upper bound: on your own login it rides the plan you already have), plus about ' + gbp(L.power) + ' a year of electricity, always on. No seats.', 'own'],
+    ['Own it, through the controller', 'Takes the same share off on a machine you already have. Only the judgement share reaches the frontier (' + gbp(L.judgement) + ' a year, priced like the cloud route at the same listed rate; on your own login it rides the plan you already have), plus about ' + gbp(L.power) + ' a year of electricity, always on. No seats.', 'own'],
   ];
   $('b-table').querySelector('tbody').replaceChildren(...rows.map(([route, what, k]) => {
     const tr = el('tr', k === 'own' ? 'own' : '');
@@ -851,7 +855,7 @@ function renderCase() {
   const vs = r.versusCloudOver;
   $('b-note').textContent = (vs >= 0 ? 'Owning beats the cloud route by ' + gbp(vs) + ' over ' + yrs + ' at this volume. ' : 'At this volume the cloud route costs ' + gbp(-vs) + ' less over ' + yrs + ' than owning: the electricity is more than the bill it saves. ')
     + 'At low volumes the per-job bill is small either way; the differences that stay are what leaves your building and the wall on frontier spend. The cloud route assumes '
-    + r.inputs.tokensIn.toLocaleString('en-GB') + ' tokens in and ' + r.inputs.tokensOut.toLocaleString('en-GB') + ' out per job (a short brief and a short answer). The share taken off is your estimate: nothing on this page measured it for your team.';
+    + r.inputs.tokensIn.toLocaleString('en-GB') + ' tokens in and ' + r.inputs.tokensOut.toLocaleString('en-GB') + ' out per job (a short brief and a short answer). Both AI lines use the same listed API rate (' + basis.frontier.product + '), so the two compare like for like; the controller’s own calculator, further up, prices its measured calls at the dearest rate of the model it actually called. The share taken off is your estimate: nothing on this page measured it for your team.';
   bold($('b-board'), 'Pick one team. Carrying its AI work by hand costs ', [gbp(r.perYear.today)], ' a year in staff time, a floor at the UK median wage. If the owned system takes off the share you estimate, that is ',
     [gbp(r.savingPerYear)], ' a year back, ' + gbp(r.savingOver) + ' over ' + yrs + ' with inflation, for about ' + gbp(L.power) + ' a year of electricity and at most ' + gbp(L.judgement)
     + ' a year of frontier calls, held under a nightly wall. Renting assistant seats instead adds ' + gbp(L.seats) + ' a year and leaves the work where it is.');
