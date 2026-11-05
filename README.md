@@ -262,7 +262,8 @@ node tools/eval-run.mjs           # a deterministic, no-LLM-judge eval vs a RAG 
 ```
 
 Requires Node 18+ (uses the standard `CompressionStream` gzip and the built-in `node --test` runner; no
-dependencies).
+dependencies). CI runs the whole suite on Node 18, 20 and 22. The siblings are cloned at their newest commit, in CI too;
+every CI job's log names the commit of each sibling (and of witness) it ran against, so a deployment can pin to those.
 
 ## Proof
 
