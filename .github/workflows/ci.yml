@@ -23,6 +23,8 @@ jobs:
           git clone --depth 1 https://github.com/sjgant80-hub/fall-remember.git fall-remember
           git clone --depth 1 https://github.com/sjgant80-hub/the-dreamer.git the-dreamer
           git clone --depth 1 https://github.com/sjgant80-hub/fallforgecell.git fallforgecell
+          # the siblings are cloned at their newest commit; the log names each one, so a deployment can pin to what was tested
+          for d in fall-remember the-dreamer fallforgecell; do echo "tested against $d @ $(git -C $d rev-parse HEAD)"; done
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -71,6 +73,33 @@ jobs:
           node tools/build-page.mjs
           git diff --exit-code -- index.html README.md || { echo "the page is stale: run node tools/build-page.mjs and commit"; exit 1; }
 
+  compat:
+    # The page and package.json say Node 18 or newer; the gate suite above runs on 22. This runs the same whole suite on
+    # the older lines it claims, so the claim is a run, not a hope.
+    name: the whole suite on Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18', '20']
+    steps:
+      - name: check out kar-mind
+        uses: actions/checkout@v4
+        with:
+          path: kar-mind
+      - name: clone the three public sibling organs
+        run: |
+          git clone --depth 1 https://github.com/sjgant80-hub/fall-remember.git fall-remember
+          git clone --depth 1 https://github.com/sjgant80-hub/the-dreamer.git the-dreamer
+          git clone --depth 1 https://github.com/sjgant80-hub/fallforgecell.git fallforgecell
+          for d in fall-remember the-dreamer fallforgecell; do echo "tested against $d @ $(git -C $d rev-parse HEAD)"; done
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: node --test on Node ${{ matrix.node }}
+        working-directory: kar-mind
+        run: node --version && node --test
+
   witness:
     # Every root module of kar-mind, one job each, under the witness mutation gate pinned at v0.6. Nothing is
     # baselined (there is no witness.baseline.json in this repo). A job fails on any surviving mutant, and on a run
@@ -118,6 +147,7 @@ jobs:
           git clone --depth 1 https://github.com/sjgant80-hub/the-dreamer.git the-dreamer
           git clone --depth 1 https://github.com/sjgant80-hub/fallforgecell.git fallforgecell
           git clone --depth 1 --branch v0.6 https://github.com/sjgant80-hub/witness.git witness
+          for d in fall-remember the-dreamer fallforgecell witness; do echo "tested against $d @ $(git -C $d rev-parse HEAD)"; done
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
