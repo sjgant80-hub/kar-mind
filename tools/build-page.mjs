@@ -268,7 +268,7 @@ const DOES = {
   'layout.mjs': 'Re-lays the digest so each fact sits on its own labelled line, for a small model.',
   'seedcodec.mjs': 'The seed’s codec: codes a payload against what its reader already holds, and decodes it back exactly.',
   'continuity.mjs': 'The line to Grok: reads the shared status log for a session’s start, and adds Kar’s entries.',
-  'controller.mjs': 'The controller’s law: which mind each job goes to, the nightly wall, the idea’s five checks, the cost of a mix, and the frontier call’s clean environment.',
+  'controller.mjs': 'The controller’s law: which mind each job goes to, the nightly wall, the idea’s five checks, the cost of a mix and how much of it gets through the wall, and the frontier call’s clean environment.',
   'callbook.mjs': 'The call book: every model call kept append-only in LIGHT, refused at the frame that changed.',
   'businesscase.mjs': 'The cost case on this page, computed from the sourced basis.',
   'gatereceipt.mjs': 'This table: GitHub’s verdicts, checked against the workflow and against the files as they are now.',

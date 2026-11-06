@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { route, verbOf, fits, nightOf, walletFor, reserve, cortexArgs, readReply, ideaPrompt, readLocalIdea, similarity, ideaChecks, costCase, wallCap,
+import { route, verbOf, fits, nightOf, walletFor, reserve, cortexArgs, readReply, ideaPrompt, readLocalIdea, similarity, ideaChecks, costCase, wallCap, wallCase,
   cleanEnv, ENV_KEEP, TIERS, RUN, NARROW, JUDGE, FRAME, TEMPLATE, IDEA_SCHEMA, IDEA_SYSTEM } from './controller.mjs';
 
 const prereg = JSON.parse(readFileSync(new URL('./data/controller-prereg.json', import.meta.url), 'utf8'));
@@ -285,6 +285,37 @@ test('costCase: what routing saves, an upper bound from measured tokens and a so
   assert.match(costCase({ tokens: [1], usdPerMTok: list, mix: { deterministic: 0, local: 0, frontier: 0 }, jobs: 1 }).why, /no jobs/);
   for (const j of [0, -1, 1.5, '10', undefined]) assert.match(costCase({ tokens: [1], usdPerMTok: list, mix, jobs: j }).why, /at least one job/, String(j));
   assert.equal(costCase({ tokens: [1], usdPerMTok: list, mix, jobs: 1 }).ok, true, 'one job is a month');
+});
+
+test('wallCase: the wall in calls, how many judgement jobs get through and how many fall back', () => {
+  const list = { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 };
+  const base = { tokens: [3000, 5000], usdPerMTok: list, mix: { deterministic: 10, local: 10, frontier: 10 }, jobs: 1000, nightly: 100000, ceiling: 30000, nights: 31 };
+  // a third of 1,000 jobs is about 333 judgement jobs; 100,000 a night at a 30,000 ceiling lets 3 a night through, 93 in 31 nights;
+  // the other 240 go to the local model; at $0.10 a call the 93 cost $9.30; 333 over 31 nights is 11 a night, so 330,000 fits them all
+  assert.deepEqual(wallCase(base), { ok: true, perNight: 3, most: 93, judgement: 333, through: 93, fallback: 240, usd: 9.3, nightlyToFit: 330000 });
+  assert.deepEqual(wallCase({ ...base, nightly: 330000 }), { ok: true, perNight: 11, most: 341, judgement: 333, through: 333, fallback: 0, usd: 33.3, nightlyToFit: 330000 }, 'a wall big enough: every one gets through');
+  assert.equal(wallCase({ ...base, mix: { deterministic: 1, local: 0, frontier: 2 } }).judgement, 667, 'two thirds of 1,000, to the nearest job');
+  assert.equal(wallCase({ ...base, jobs: 62, mix: { deterministic: 0, local: 0, frontier: 1 } }).nightlyToFit, 60000, '62 over 31 nights is 2 a night');
+  const zero = wallCase({ ...base, nightly: 0 });
+  assert.deepEqual([zero.ok, zero.perNight, zero.through, zero.fallback, zero.usd], [true, 0, 0, 333, 0], 'a zero budget: nothing reaches the frontier, all of it falls back');
+  assert.equal(wallCase({ ...base, nightly: 29999 }).perNight, 0, 'a budget one short of a ceiling lets nothing through');
+  assert.equal(wallCase({ ...base, nightly: 5, ceiling: 1, nights: 1 }).most, 5, 'a ceiling of one token is a ceiling; one night is a month');
+  assert.equal(wallCase({ ...base, mix: { deterministic: 1, local: 1, frontier: 0 } }).fallback, 0, 'no judgement: nothing to fall back');
+  // the count agrees with the real wallet: reserve a ceiling until the router refuses
+  for (const [nightly, ceiling] of [[100000, 30000], [90000, 30000], [89999, 30000], [29999, 30000], [0, 30000], [5, 1], [330000, 30000]]) {
+    let st = walletFor(null, 'n', nightly), got = 0;
+    while (got < 100 && route('propose a build', { left: st.wallet.budget.total - st.wallet.budget.spent, ceiling }).tier === 'frontier') {
+      const r = reserve(st.wallet, ceiling); if (!r.ok) break; st = { ...st, wallet: r.wallet }; got++;
+    }
+    assert.equal(wallCase({ ...base, nightly, ceiling, nights: 1 }).perNight, got, nightly + ' / ' + ceiling);
+  }
+  assert.match(wallCase({ ...base, tokens: [] }).why, /measured tokens/, 'the cost case is checked first');
+  assert.match(wallCase({ ...base, jobs: 0 }).why, /at least one job/);
+  for (const n of [-1, 1.5, '1000', null, undefined]) assert.match(wallCase({ ...base, nightly: n }).why, /nightly budget/, String(n));
+  for (const n of [0, -1, 1.5, '30000', null]) assert.match(wallCase({ ...base, ceiling: n }).why, /ceiling/, String(n));
+  for (const n of [0, -1, 1.5, '31', undefined]) assert.match(wallCase({ ...base, nights: n }).why, /one night/, String(n));
+  assert.equal(wallCase(null).ok, false);
+  assert.equal(wallCase('x').ok, false);
 });
 
 test('wallCap: the wall in money, at the dearest listed rate', () => {

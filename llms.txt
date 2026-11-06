@@ -7,8 +7,9 @@
 kar-mind wires small, independently-gated memory organs into one mind: it perceives a fact,
 cross-checks it against independent sources, consolidates it into meaning, generates new facts and
 loops them back, and births new domains — through real organs, with every state change read from each
-organ's own count. It remembers itself to a durable, receipt-sealed disk journal (real gzip, a receipt
-hash over every field) and comes back whole after a restart. It runs its own loop on its own cadence,
+organ's own count. It remembers itself to a durable, sealed disk journal (one LIGHT vault, the estate's
+own lossless codec, with the SHA-256 of its events inside; a journal written before LIGHT, in gzip with a
+receipt hash, still loads and migrates without loss) and comes back whole after a restart. It runs its own loop on its own cadence,
 with no caller per step. It cannot publish or spend on its own — the loop has no path to any
 irreversible outside-world action, by construction.
 
@@ -20,6 +21,13 @@ status log between Kar and a second AI agent, read at every session start, loud 
 runs the real code in the browser, prices a team's own cost case from public sources (businesscase.mjs; no prices of
 the supplier's), and lists every kernel with its mutation-gate result from GitHub's runner (data/gate-receipt.json).
 Supplied by AI Native Solutions (https://www.ai-nativesolutions.com); MIT; it keeps running without the supplier.
+
+## The controller (2026-10-26)
+- controller.mjs routes each AI job by its first verb: an organ's job runs as code with no model, a narrow wording job
+  goes to the local model, judgement goes to Claude on the owner's own login through the official client, with no tools.
+- A nightly wall spends each frontier call's whole ceiling before the call; a call that does not fit goes to the local
+  model, marked as a fallback. Seven claims were sealed before the code; the measurement, the failed one included, is on
+  the live page and re-graded by CI on every push.
 
 ## The line to Grok (2026-10-31)
 - continuity.mjs reads the shared STATUS.md for a session's start: Grok's latest report, his open asks (daily repeats

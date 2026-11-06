@@ -18,6 +18,10 @@
 //   costCase({ tokens, usdPerMTok, mix, jobs })
 //                                     → what routing saves against sending every job to the frontier, from measured
 //                                       tokens and a sourced price list: an upper bound, every token at the dearest rate.
+//   wallCase({ ...costCase's, nightly, ceiling, nights })
+//                                     → the wall in calls: how many of the mix's judgement jobs a month get through
+//                                       (floor(nightly / ceiling) a night), how many fall back to the local model, and
+//                                       the nightly budget that would let them all through.
 import { canDo, applySpend } from './vendor/fall-kit-core/vendor/wallet/wallet.mjs';
 
 export const TIERS = Object.freeze(['deterministic', 'local', 'frontier']);
@@ -247,6 +251,14 @@ export function wallCap(opts) {
  * routedUSD, savedUSD, frontierShare } | { ok: false, why }
  */
 export function costCase(opts) {
+  const c = caseOf(opts);
+  if (!c.ok) return c;
+  const everything = c.jobs * c.perCall, routed = c.jobs * c.share * c.perCall;
+  return { ok: true, perCallUSD: Math.round(c.perCall * 10000) / 10000, allFrontierUSD: cents(everything), routedUSD: cents(routed), savedUSD: cents(everything - routed), frontierShare: c.share };
+}
+
+/** A cost case's inputs, checked once for costCase and wallCase: a call's price, the judgement share and its jobs a month. */
+function caseOf(opts) {
   const o = opts !== null && typeof opts === 'object' ? opts : {};
   const t = Array.isArray(o.tokens) ? o.tokens : [];
   if (t.length === 0 || !t.every((x) => Number.isSafeInteger(x) && x > 0)) return { ok: false, why: 'the measured tokens of at least one frontier call are needed' };
@@ -259,6 +271,24 @@ export function costCase(opts) {
   if (all === 0) return { ok: false, why: 'the mix has no jobs' };
   if (!Number.isSafeInteger(o.jobs) || o.jobs < 1) return { ok: false, why: 'a month needs at least one job' };
   const perCall = (t.reduce((s, x) => s + x, 0) / t.length) * Math.max(...rates) / 1e6;
-  const share = n[2] / all, everything = o.jobs * perCall, routed = o.jobs * share * perCall;
-  return { ok: true, perCallUSD: Math.round(perCall * 10000) / 10000, allFrontierUSD: cents(everything), routedUSD: cents(routed), savedUSD: cents(everything - routed), frontierShare: share };
+  return { ok: true, jobs: o.jobs, perCall, share: n[2] / all, judgement: Math.round(o.jobs * n[2] / all) };
+}
+
+/**
+ * The wall in calls. A frontier call spends its whole ceiling before it goes out, so a night lets floor(nightly / ceiling)
+ * calls through and refuses the rest, which the local model does, marked as fallbacks. Over `nights` nights at most
+ * perNight × nights of the mix's judgement jobs a month reach the frontier (fewer if they bunch up on some nights), each
+ * priced as costCase prices a call; nightlyToFit is the smallest nightly budget that lets them all through, spread evenly.
+ * Takes costCase's inputs plus { nightly, ceiling, nights }.
+ * → { ok, perNight, most, judgement, through, fallback, usd, nightlyToFit } | { ok: false, why }
+ */
+export function wallCase(opts) {
+  const c = caseOf(opts);
+  if (!c.ok) return c;
+  const o = opts;
+  if (!Number.isSafeInteger(o.nightly) || o.nightly < 0) return { ok: false, why: 'a nightly budget is a whole number of tokens' };
+  if (!Number.isSafeInteger(o.ceiling) || o.ceiling < 1) return { ok: false, why: 'a call’s ceiling is a whole number of tokens, at least 1' };
+  if (!Number.isSafeInteger(o.nights) || o.nights < 1) return { ok: false, why: 'at least one night' };
+  const perNight = Math.floor(o.nightly / o.ceiling), most = perNight * o.nights, through = Math.min(c.judgement, most);
+  return { ok: true, perNight, most, judgement: c.judgement, through, fallback: c.judgement - through, usd: cents(through * c.perCall), nightlyToFit: Math.ceil(c.judgement / o.nights) * o.ceiling };
 }
